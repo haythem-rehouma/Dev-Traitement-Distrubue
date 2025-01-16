@@ -5,7 +5,7 @@
    - Concepts de base : commits, branches, merges.  
    - Collaboration avancée : pull requests, rebasing, et résolution de conflits.  
    - Workflow GitFlow pour les équipes Big Data.  
-2. **Docker Mastery**  
+2. **Docker**  
    - Conteneurisation de pipelines de données.  
    - Création et gestion des images Docker pour Spark, Kafka, et MongoDB.  
    - Réseaux Docker pour l'intégration multi-services.
@@ -13,7 +13,7 @@
 ---
 
 ### **Chapitre 2 - Programmation fonctionnelle**
-1. **Scala Élite**  
+1. **Scala**  
    - Bases de la programmation fonctionnelle : immutabilité, expressions lambda, collections.  
    - Création de pipelines de données avec Scala.  
    - Utilisation de Scala avec Spark pour le traitement distribué.  
