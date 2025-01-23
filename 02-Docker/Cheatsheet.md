@@ -1283,24 +1283,3 @@ exit
 
 
 
-
-
-
-- Pratique 07 (Dockerfile)
-- Pratique 08 (Dockerfile)
-- Pratique 09 (Dockerfile)
-- Pratique 10 (Dockerfile)
-
----
-<a name="pratique-06-pratiquer-le-dockerfile"></a>   
-# Pratique 07 - Le Dockerfile partie 2
----
-
-- Manipulations # 3 - CRÉER UN SERVEUR AVEC ALMA + APACHE
-(DÉMO 2 -DOCKERFILE)
-
-- Manipulations # 2 - CRÉER UN SERVEUR AVEC PYTHON + FLASK (DÉMO 1 -DOCKERFILE)
-
-- Manipulations # 7 - COMMANDES DE BASE 2 (DÉMO 3 -DOCKERFILE)
-
-- Manipulations # 8 - DEVOIR À LA MAISON + Correction
