@@ -1,2 +1,0 @@
-- https://devopelastichayway.com/git-distributed-version-control-system/
-- https://phoenixnap.com/kb/how-to-install-git-windows
