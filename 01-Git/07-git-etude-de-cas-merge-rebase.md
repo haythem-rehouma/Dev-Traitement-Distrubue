@@ -100,13 +100,14 @@ git checkout master
 git checkout hotfix
 touch fichier5_from_hotfix.txt
 git add fichier5_from_hotfix.txt
-git commit -m "Ajout du fichier 5"
+git commit -m "Ajout du fichier 5 from hotfix"
 ```
 
 ```bash
 git checkout main
+touch fichier5_from_main.txt
 git add fichier5_from_main.txt
-git commit -m "Ajout du fichier 5"
+git commit -m "Ajout du fichier 5 from main"
 ```
 
 ```bash
