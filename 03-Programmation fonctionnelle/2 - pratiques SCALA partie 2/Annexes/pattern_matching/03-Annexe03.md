@@ -20,69 +20,89 @@ println(processEvent(SystemError))              // Erreur système détectée
 ```
 
 ---
-# Annexe - *Explication détaillée mot à mot*
+# Annexe - *Explication détaillée*
 ---
-Ce code **définit un système de gestion d'événements** en Scala, en utilisant **Pattern Matching** et **les classes case**.
+
+
+Ce code met en place **un système de gestion d'événements** en Scala en utilisant **Pattern Matching** et **les classes case**. Il est conçu pour **classer et traiter des événements comme des connexions (`Login`), des achats (`Purchase`) et des erreurs système (`SystemError`)**.
 
 ---
 
-## **1. Définition de `sealed trait Event`**
+## **1. Définition du `trait` `Event`**
 ```scala
 sealed trait Event
 ```
-- **`sealed`** → **Mot-clé Scala** qui signifie que **toutes les sous-classes de `Event` doivent être définies dans le même fichier**. Cela **empêche** d'ajouter des nouvelles sous-classes ailleurs, assurant que **tous les cas possibles sont connus à la compilation**.
-- **`trait`** → **Mot-clé Scala** utilisé pour définir **une interface ou une classe abstraite** qui peut être héritée. Un `trait` ne peut pas être instancié directement.
-- **`Event`** → **Nom du `trait`**, utilisé pour représenter **un événement générique** (exemple : une connexion, un achat, une erreur système).
+- **`sealed`** → **Mot-clé Scala** qui signifie que **toutes les sous-classes de `Event` doivent être définies dans le même fichier**. Cela **garantit** que Scala peut vérifier **tous les cas possibles lors de la compilation**.
+- **`trait`** → **Mot-clé Scala** utilisé pour définir **une interface ou une classe abstraite**. Un `trait` **ne peut pas être instancié** directement.
+- **`Event`** → **Identifiant (nom défini par l'utilisateur)**, utilisé pour représenter **un type générique d'événement**.
 
 📌 **Pourquoi `sealed trait` ?**  
-✅ Scala oblige à **gérer tous les cas dans le pattern matching**.  
-✅ Empêche **d'ajouter des événements imprévus** ailleurs dans le code.  
+- Scala **force à gérer tous les cas** dans un `match-case`.  
+- Empêche **l'ajout de nouveaux événements ailleurs**, ce qui **évite les bugs**.
 
 ---
 
 ## **2. Définition des événements (`case class` et `case object`)**
-Ces événements **héritent du `trait` `Event`**.
+Ces événements **héritent de `Event`** et représentent **des actions possibles**.
 
+### **Classe `Login`**
 ```scala
 case class Login(userId: String) extends Event
 ```
-- **`case class`** → **Mot-clé Scala** pour créer **une classe case** (optimisée pour le pattern matching).
-- **`Login`** → **Nom de l'événement** (c'est une classe).
-- **`userId: String`** → **Champ de la classe** qui contient l'identifiant de l'utilisateur.
-- **`extends Event`** → Indique que `Login` est **un sous-type de `Event`**.
+- **`case class`** → **Mot-clé Scala** pour créer **une classe case**, utilisée pour le **Pattern Matching**.
+- **`Login`** → **Identifiant défini par l'utilisateur**, représentant **un événement de connexion**.
+- **`userId: String`** → **Paramètre** contenant l'**identifiant de l'utilisateur**.
+- **`extends Event`** → Indique que `Login` **hérite de `Event`**.
 
-Exemple d'utilisation :
+💡 **Où est l'implémentation de `Login` ?**
+> **Elle est générée automatiquement par Scala !**  
+> Les `case class` **génèrent** automatiquement :
+> - Un **constructeur** (`new Login("Alice")` est implicite).
+> - Une **méthode `toString`** (`Login(Alice)`).
+> - Une **méthode `equals`** pour la comparaison.
+> - Une **copie facile** (`.copy()`).
+
+✅ **Exemple d'utilisation :**
 ```scala
 val login = Login("Alice")
 println(login.userId) // Alice
 ```
+
 ---
 
+### **Classe `Purchase`**
 ```scala
 case class Purchase(userId: String, amount: Double) extends Event
 ```
-- **`case class`** → Mot-clé Scala pour **une classe case**.
-- **`Purchase`** → Nom de l'événement.
-- **`userId: String, amount: Double`** → Champs contenant **l'identifiant utilisateur** et **le montant de l'achat**.
-- **`extends Event`** → `Purchase` est aussi un sous-type de `Event`.
+- **`case class`** → Mot-clé Scala pour une classe case.
+- **`Purchase`** → Identifiant, représente **un événement d'achat**.
+- **`userId: String, amount: Double`** → Paramètres stockant **l'identifiant utilisateur** et **le montant de l'achat**.
+- **`extends Event`** → `Purchase` **hérite de `Event`**.
 
-Exemple :
+✅ **Exemple d'utilisation :**
 ```scala
 val purchase = Purchase("Bob", 99.99)
 println(purchase.amount) // 99.99
 ```
+
 ---
 
+### **Objet `SystemError`**
 ```scala
 case object SystemError extends Event
 ```
-- **`case object`** → Mot-clé Scala pour **un singleton immuable**.
-- **`SystemError`** → Nom de l'événement.
-- **`extends Event`** → `SystemError` est aussi un sous-type de `Event`.
+- **`case object`** → **Mot-clé Scala** pour créer un **singleton**.
+- **`SystemError`** → **Identifiant** représentant **une erreur système**.
+- **`extends Event`** → `SystemError` **hérite de `Event`**.
 
-📌 **Pourquoi `case object` ici ?**  
-✅ Il n'a **pas de paramètres** (contrairement aux autres événements).  
-✅ Il **représente un état unique** (exemple : une erreur système).  
+📌 **Pourquoi `case object` ?**
+✅ **Pas de paramètres**, donc inutile de créer une classe.  
+✅ **Gère un état unique**, ce qui évite **les doublons en mémoire**.
+
+✅ **Exemple d'utilisation :**
+```scala
+println(SystemError) // SystemError
+```
 
 ---
 
@@ -90,23 +110,26 @@ case object SystemError extends Event
 ```scala
 def processEvent(event: Event): String = event match {
 ```
-- **`def`** → Mot-clé Scala pour **définir une fonction**.
-- **`processEvent`** → Nom de la fonction.
-- **`event: Event`** → Paramètre `event` de type `Event` (il peut être `Login`, `Purchase` ou `SystemError`).
-- **`String`** → La fonction retourne **une chaîne de caractères**.
-- **`event match { ... }`** → Utilise le **Pattern Matching** pour traiter l'événement.
+- **`def`** → Mot-clé Scala pour **déclarer une fonction**.
+- **`processEvent`** → Nom défini par l'utilisateur.
+- **`event: Event`** → Paramètre **de type `Event`**, qui peut être :
+  - `Login`
+  - `Purchase`
+  - `SystemError`
+- **`String`** → La fonction **retourne une chaîne de caractères**.
+- **`event match { ... }`** → Applique le **Pattern Matching** sur `event`.
 
 ---
 
-### **4. Traitement des événements avec `case`**
+### **Traitement des événements avec `case`**
 ```scala
   case Login(user)       => s"Utilisateur $user connecté"
 ```
-- Si `event` est un **objet de type `Login`**, alors :  
-  - **`user`** récupère la valeur de `userId`.  
-  - On retourne **"Utilisateur Alice connecté"**.
+- **`case`** → **Mot-clé Scala** pour un **cas de Pattern Matching**.
+- **`Login(user)`** → **Teste si `event` est `Login`** et **extrait `userId`**.
+- **Retourne** `"Utilisateur Alice connecté"`.
 
-Exemple :
+✅ **Exemple d'exécution :**
 ```scala
 println(processEvent(Login("Alice"))) // Utilisateur Alice connecté
 ```
@@ -116,12 +139,11 @@ println(processEvent(Login("Alice"))) // Utilisateur Alice connecté
 ```scala
   case Purchase(user, a) => s"Utilisateur $user a acheté pour $a €"
 ```
-- Si `event` est un **objet de type `Purchase`**, alors :  
-  - **`user`** récupère `userId`.  
-  - **`a`** récupère `amount`.  
-  - On retourne `"Utilisateur Bob a acheté pour 99.99 €"`.
+- **`case`** → Définit un autre **cas**.
+- **`Purchase(user, a)`** → Vérifie si `event` est `Purchase`, **extrait `userId` et `amount`**.
+- **Retourne** `"Utilisateur Bob a acheté pour 99.99 €"`.
 
-Exemple :
+✅ **Exemple :**
 ```scala
 println(processEvent(Purchase("Bob", 99.99))) // Utilisateur Bob a acheté pour 99.99 €
 ```
@@ -131,43 +153,47 @@ println(processEvent(Purchase("Bob", 99.99))) // Utilisateur Bob a acheté pour 
 ```scala
   case SystemError       => "Erreur système détectée"
 ```
-- Si `event` est **SystemError**, on retourne `"Erreur système détectée"`.
+- **`case`** → Définit un dernier cas.
+- **`SystemError`** → Vérifie si `event` est `SystemError`.
+- **Retourne** `"Erreur système détectée"`.
 
-Exemple :
+✅ **Exemple :**
 ```scala
 println(processEvent(SystemError)) // Erreur système détectée
 ```
 
 ---
 
-## **5. Résumé des concepts Scala utilisés**
-
-| **Mot-clé** | **Explication** |
-|------------|----------------|
-| `sealed` | Indique que toutes les sous-classes doivent être définies dans le même fichier. |
-| `trait` | Déclare un comportement ou une interface qui peut être héritée. |
-| `case class` | Crée une classe optimisée pour le pattern matching et immuable par défaut. |
-| `case object` | Crée un objet singleton (unique instance). |
-| `extends` | Indique qu'une classe hérite d'un `trait`. |
-| `match` | Permet d'écrire des conditions optimisées sous forme de Pattern Matching. |
-| `case` | Décrit chaque scénario à tester dans le pattern matching. |
+## **4. Distinction entre Mots-clés et Identifiants**
+| **Terme**       | **Type** | **Explication** |
+|----------------|----------|----------------|
+| `sealed`       | **Mot-clé Scala** | Restreint l'héritage aux classes définies dans le même fichier. |
+| `trait`        | **Mot-clé Scala** | Définit un type abstrait qui peut être hérité. |
+| `Event`        | **Identifiant** | Nom du `trait`, défini par l'utilisateur. |
+| `case class`   | **Mot-clé Scala** | Déclare une classe case. |
+| `case object`  | **Mot-clé Scala** | Déclare un objet unique (singleton). |
+| `Login`        | **Identifiant** | Nom d'une classe case, défini par l'utilisateur. |
+| `Purchase`     | **Identifiant** | Nom d'une autre classe case. |
+| `SystemError`  | **Identifiant** | Nom d'un `case object`. |
+| `extends`      | **Mot-clé Scala** | Indique l'héritage d'un `trait`. |
+| `def`          | **Mot-clé Scala** | Définit une fonction. |
+| `processEvent` | **Identifiant** | Nom d'une fonction. |
+| `match`        | **Mot-clé Scala** | Utilisé pour exécuter un Pattern Matching. |
+| `case`         | **Mot-clé Scala** | Définit un cas dans un Pattern Matching. |
+| `userId`       | **Identifiant** | Paramètre de `Login` et `Purchase`. |
+| `amount`       | **Identifiant** | Paramètre de `Purchase`. |
+| `event`        | **Identifiant** | Paramètre de la fonction `processEvent`. |
 
 ---
 
-## **6. Pourquoi c'est utile en Big Data ?**
-
+## **5. Pourquoi ce modèle est utile en Big Data ?**
 | **Problème** | **Solution avec Pattern Matching** |
 |-------------|---------------------------------|
-| Les événements ont des types différents (achat, connexion, erreur) | Scala permet de **gérer plusieurs types** avec un seul `trait` (`Event`). |
-| Il faut classifier les données pour faire des analyses | Avec `match`, chaque événement est **traité automatiquement selon son type**. |
-| Il faut éviter les erreurs (ex: un événement inconnu) | Avec `sealed trait`, Scala **force** à gérer **tous les cas possibles**. |
-| Un achat et une connexion n'ont pas les mêmes informations | Avec `case class`, chaque type d'événement a **ses propres champs**. |
+| Événements Big Data variés | Scala **gère plusieurs types d'événements** avec `trait`. |
+| Analyse et classification | Chaque événement est **traité automatiquement**. |
+| Prévention des erreurs | Scala **force à gérer tous les cas** avec `sealed trait`. |
 
 ---
 
-## **7. Conclusion**
-📌 **Ce code permet de structurer et de traiter facilement des événements Big Data.**  
-📌 **Le Pattern Matching permet d'écrire un code plus clair et sans erreurs.**  
-📌 **Le `sealed trait` empêche d'oublier des cas lors du traitement des événements.**  
-
-💡 **Dans un projet Big Data (ex: Apache Spark), ce modèle est utilisé pour classer et filtrer les données en temps réel.**
+## **Conclusion**
+Ce modèle **simplifie le traitement des événements**, **assure la robustesse du code**, et **évite les erreurs**. Dans **Apache Spark**, ce modèle est très utilisé pour **classer et filtrer les données en temps réel**.
