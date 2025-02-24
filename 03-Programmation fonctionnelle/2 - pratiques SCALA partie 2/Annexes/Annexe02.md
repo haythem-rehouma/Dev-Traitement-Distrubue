@@ -1,15 +1,15 @@
-# 🎯 **Les Classes Case en Scala : Explication Simple et Vulgarisée**  
+# Les Classes Case en Scala : Explication Simple et Vulgarisée
 
-## 💡 C'est quoi une **classe case** en Scala ?  
+## C'est quoi une **classe case** en Scala ?  
 Une **classe case** en Scala, c’est une manière **facile et rapide** de créer des objets **immuables** (qui ne changent pas) et **prêts à être comparés**.  
 
-### 📌 Un exemple concret  
+### Un exemple concret  
 Imagine que tu crées un carnet d'adresses 📖. Chaque contact a un **nom** et un **numéro**.  
 Avec une classe normale, tu devrais écrire plein de code. Mais avec une **classe case**, tout est fait automatiquement !
 
 ---
 
-## 🔹 Comment déclarer une **classe case** ?
+## Comment déclarer une **classe case** ?
 C’est comme une classe normale, mais on ajoute `case` devant :
 ```scala
 case class Contact(name: String, number: String)
@@ -23,7 +23,7 @@ case class Contact(name: String, number: String)
 
 ---
 
-## 🔍 **Différences entre une classe normale et une classe case**  
+## **Différences entre une classe normale et une classe case**  
 
 | ⚡ **Comparaison** | **Classe Normale** | **Classe Case** |
 |------------------|-------------------|----------------|
