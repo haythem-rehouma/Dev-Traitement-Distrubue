@@ -174,5 +174,5 @@ greet(42)
 
 Ce code illustre comment le pattern matching permet de distinguer facilement entre différents types et valeurs, offrant une alternative puissante et flexible aux enchaînements de `if` et `else`.
 
----
-En combinant ces caractéristiques avancées, Scala offre un langage expressif et puissant pour aborder la programmation de manière fonctionnelle et orientée objet. Les développeurs peuvent ainsi construire des applications complexes et performantes avec un code clair, maintenable et élégant.
+
+> En combinant ces caractéristiques avancées, Scala offre un langage expressif et puissant pour aborder la programmation de manière fonctionnelle et orientée objet. Les développeurs peuvent ainsi construire des applications complexes et performantes avec un code clair, maintenable et élégant.
