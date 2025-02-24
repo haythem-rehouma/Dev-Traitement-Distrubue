@@ -47,7 +47,7 @@ def checkNumber(n: Int): String = n match {
 
 Dans **Apache Spark**, on travaille souvent avec des **données de différents types** (entiers, chaînes, valeurs manquantes).  
 
-### **Exemple : Vérifier le type d'une donnée**
+### *Exemple : Vérifier le type d'une donnée* (Annexe 02)
 ```scala
 def identifyType(x: Any): String = x match {
   case _: Int    => "C'est un entier"
@@ -73,7 +73,7 @@ println(identifyType(null))       // Valeur manquante
 Dans un projet Big Data, on reçoit souvent **différents types d'événements** (ex: connexion utilisateur, achat, erreur système).  
 On peut utiliser **des classes case** pour représenter ces événements et les traiter efficacement.
 
-### **Exemple : Classification des événements dans Spark**
+### *Exemple : Classification des événements dans Spark* (Annexe 03)
 ```scala
 sealed trait Event
 case class Login(userId: String) extends Event
@@ -100,7 +100,7 @@ println(processEvent(SystemError))              // Erreur système détectée
 
 Dans un environnement Big Data, on peut recevoir **des données sous forme de listes**, qu'on doit traiter efficacement.
 
-### **Exemple : Vérifier le contenu d'une liste**
+### *Exemple : Vérifier le contenu d'une liste* (Annexe 04)
 ```scala
 def listInfo(lst: List[Int]): String = lst match {
   case Nil          => "Liste vide"
@@ -123,7 +123,7 @@ println(listInfo(List(1, 2, 3, 4))) // Premier élément : 1, reste : List(2, 3,
 Un des cas courants en Big Data est le **traitement des fichiers CSV** qui contiennent des **valeurs mal formées**.  
 Avec le **Pattern Matching**, on peut **nettoyer ces données avant de les stocker**.
 
-### **Exemple : Nettoyage d'un fichier CSV**
+### *Exemple : Nettoyage d'un fichier CSV* (Annexe 05)
 ```scala
 case class Person(name: String, age: Option[Int])
 
