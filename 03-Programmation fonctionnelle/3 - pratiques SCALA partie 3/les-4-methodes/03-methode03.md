@@ -1,4 +1,4 @@
-
+## **Correction avec SCALA + Spark SQL, pas de PYSPARK, pas de DF, pas de DS**
 
 ### **1. Configuration de Spark et Chargement des Données**
 ```scala
