@@ -39,6 +39,8 @@ Dans IntelliJ IDEA, ouvrez le fichier **`pom.xml`** et **remplacez son contenu**
   <properties>
     <encoding>UTF-8</encoding>
   </properties>
+  <!-- Maven profiles allow you to support both Scala 2.10, 2.11 and Scala 2.12 with
+    the right dependencies for modules specified for each version separately -->
   <profiles>
     <profile>
       <id>scala-2.12</id>
@@ -56,15 +58,77 @@ Dans IntelliJ IDEA, ouvrez le fichier **`pom.xml`** et **remplacez son contenu**
           <version>${scala.version}</version>
         </dependency>
         <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-xml_${scala.compat.version}</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-parser-combinators_${scala.compat.version}</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-swing_${scala.compat.version}</artifactId>
+          <version>2.0.3</version>
+        </dependency>
+
+
+
+
+        <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-core_2.12</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.0</version> <!-- Vérifiez la compatibilité avec votre version de Scala -->
         </dependency>
+
         <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-sql_2.12</artifactId>
           <version>3.3.0</version>
         </dependency>
+
+
+      </dependencies>
+    </profile>
+    <profile>
+      <id>scala-2.11</id>
+      <properties>
+        <scala.version>2.11.12</scala.version>
+        <scala.compat.version>2.11</scala.compat.version>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-xml_${scala.compat.version}</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+        <dependency>
+          <groupId>org.scala-lang.modules</groupId>
+          <artifactId>scala-parser-combinators_${scala.compat.version}</artifactId>
+          <version>1.1.1</version>
+        </dependency>
+
+      </dependencies>
+    </profile>
+    <profile>
+      <id>scala-2.10</id>
+      <properties>
+        <scala.version>2.10.7</scala.version>
+        <scala.compat.version>2.10</scala.compat.version>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala.version}</version>
+        </dependency>
+
       </dependencies>
     </profile>
   </profiles>
@@ -91,6 +155,7 @@ Dans IntelliJ IDEA, ouvrez le fichier **`pom.xml`** et **remplacez son contenu**
         </executions>
         <configuration>
           <args>
+            <!-- work-around for https://issues.scala-lang.org/browse/SI-8358 -->
             <arg>-nobootcp</arg>
           </args>
         </configuration>
@@ -114,8 +179,11 @@ Dans le dossier `src/main/scala`, créez un fichier `StockProcessor.scala` et **
 
 ```scala
 // Importation des bibliothèques nécessaires
-import org.apache.spark.sql.{SparkSession, DataFrame}
+
+import org.apache.spark.sql.{SparkSession, DataFrame}  // DataFrame est ici correctement importé
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Encoders
+
 
 // Définition de la case class pour les stocks
 case class Stock(
@@ -150,24 +218,28 @@ object StockProcessor {
         None
     }
   }
-
   def parseRDD(rdd: RDD[String]): RDD[Stock] = {
-    val header = rdd.first()
-    rdd.filter(_ != header).flatMap(parseStock).cache()
+    val header = rdd.first() // Récupération de l'en-tête
+    rdd
+      .filter(_ != header) // Suppression de l'en-tête
+      .flatMap(parseStock) // Utilisation de flatMap pour ignorer les erreurs
+      .cache()
   }
-
   def main(args: Array[String]): Unit = {
+    // Création de la session Spark
     val spark = SparkSession.builder()
       .appName("Stock Analysis")
-      .master("local[*]")
+      .master("local[*]") // Mode local
       .getOrCreate()
 
-    import spark.implicits._
+    import spark.implicits._ // Import pour convertir RDD en DataFrame
 
+    // Charger le fichier CSV et transformer en DataFrame
     val stocksAAPLDF: DataFrame = parseRDD(spark.sparkContext.textFile("C:/Users/rehou/Downloads/AAPL.csv"))
-      .toDF()
+      .toDF() // Conversion en DataFrame
       .cache()
 
+    // Affichage des premières lignes
     stocksAAPLDF.show()
   }
 }
@@ -177,11 +249,13 @@ object StockProcessor {
 
 ## **⚙ 4. Configuration de l’Exécution**
 ### **🔹 Modifier les Configurations d'Exécution**
-1. **Cliquez sur le bouton vert ▶** à côté de `main()`.
+1. **Cliquez sur le bouton vert ▶** en haut.
 2. Sélectionnez **"Edit Configurations..."**.
 3. Cliquez sur **"Modify options"**.
 4. Cochez **"Allow multiple instances"**.
-5. **Sélectionnez Java 8** dans les paramètres d’exécution.
+5. Allez dans *Build and run.* ­> *Select Alternative JRE*
+6. **Sélectionnez Java 8** dans les paramètres d’exécution.
+7. Cliquez sur **Run**
 
 ---
 
@@ -204,11 +278,9 @@ object StockProcessor {
 
 ---
 
-## 🎯 **7. Exercice pour les Étudiants**
+## 🎯 **7. Exercice**
 1. **Changer le chemin du fichier CSV** en fonction de votre système.
 2. **Ajouter une colonne `prix_moyen`** (`(openprice + closeprice) / 2`).
 3. **Appliquer un filtre** pour afficher uniquement les actions avec un `volume > 210000`.
 
----
 
-Avec ce tutoriel, vos étudiants peuvent configurer un projet Scala avec Maven et exécuter du code Spark facilement ! 🚀
