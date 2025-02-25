@@ -6,7 +6,7 @@
 
 ---
 
-## **1. Prérequis**
+# **1. Prérequis**
 Avant de commencer, assurez-vous d'avoir installé :
 - **Apache Spark 3.3.0**  
 - **Java 8 (JDK 1.8)** (pour compatibilité avec Spark)  
@@ -16,7 +16,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 ---
 
-## **📂 2. Création du Projet Maven dans IntelliJ IDEA**
+# **📂 2. Création du Projet Maven dans IntelliJ IDEA**
 ### **1️⃣ Créer un projet Maven**
 1. **Ouvrez IntelliJ IDEA** et sélectionnez **"New Project"**.
 2. Dans **"Project SDK"**, choisissez **JDK 1.8**.
@@ -174,7 +174,7 @@ Dans IntelliJ IDEA, ouvrez le fichier **`pom.xml`** et **remplacez son contenu**
 
 ---
 
-## **📜 3. Ajout du Code Scala**
+# **3. Ajout du Code Scala**
 Dans le dossier `src/main/scala`, créez un fichier `StockProcessor.scala` et **collez le code suivant** :
 
 ```scala
@@ -247,7 +247,7 @@ object StockProcessor {
 
 ---
 
-## **⚙ 4. Configuration de l’Exécution**
+# **⚙ 4. Configuration de l’Exécution**
 ### **🔹 Modifier les Configurations d'Exécution**
 1. **Cliquez sur le bouton vert ▶** en haut.
 2. Sélectionnez **"Edit Configurations..."**.
@@ -259,13 +259,13 @@ object StockProcessor {
 
 ---
 
-## **▶ 5. Exécuter le Programme**
+# **▶ 5. Exécuter le Programme**
 1. Cliquez sur **le bouton vert ▶** à côté de `main()`.
 2. Attendez que Spark démarre et affiche les résultats.
 
 ---
 
-## **📊 6. Résultat Attendu**
+# **6. Résultat Attendu**
 ```
 +----------+---------+---------+---------+---------+-------+-------------+
 |       dt |openprice|highprice|lowprice |closeprice|volume|adjcloseprice|
@@ -278,9 +278,43 @@ object StockProcessor {
 
 ---
 
-## 🎯 **7. Exercice**
+# **7. Exercice**
 1. **Changer le chemin du fichier CSV** en fonction de votre système.
 2. **Ajouter une colonne `prix_moyen`** (`(openprice + closeprice) / 2`).
 3. **Appliquer un filtre** pour afficher uniquement les actions avec un `volume > 210000`.
+
+
+
+# 8. Annexe 1 - Remarques Importantes 
+
+1️⃣ **Version de Maven** :  
+   - **Il est impératif d’utiliser Maven 3.9.0**.  
+   - **Si vous utilisez une autre version, vous risquez d’avoir des erreurs de compilation**.  
+   - Vous pouvez vérifier votre version avec la commande suivante dans le terminal :  
+     ```sh
+     mvn -version
+     ```
+   - Si ce n’est pas la bonne version, mettez à jour Maven ou téléchargez **Maven 3.9.0** depuis [Apache Maven](https://maven.apache.org/download.cgi).
+
+---
+
+2️⃣ **Version de Java** :  
+   - **Seule la version Java 8 (JDK 1.8) est compatible avec Spark 3.3.0 et Scala 2.12.7.**  
+   - **N’utilisez pas Java 11, 17 ou plus, cela entraînera des erreurs de compatibilité**.  
+   - Vérifiez votre version de Java avec la commande :  
+     ```sh
+     java -version
+     ```
+   - Si ce n’est pas Java 8, vous devez l’installer et le définir comme version active.
+
+---
+
+3️⃣ **Configuration d'IntelliJ IDEA** :  
+   - **Dans les paramètres d'exécution du projet, il est obligatoire d’activer "Allow multiple instances"**.  
+   - Pour cela :  
+     1. **Cliquez sur "Run/Debug Configurations"**.  
+     2. **Sélectionnez votre application Spark**.  
+     3. **Cochez l’option "Allow multiple instances"**.  
+
 
 
