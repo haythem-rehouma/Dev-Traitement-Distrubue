@@ -1,0 +1,1063 @@
+
+//****************************************
+//****************************************
+//PARTIE 1 - RDD ET TRANSFORMATIONS , ACTIONS DE BASE  
+//****************************************
+//****************************************
+
+//NOUS MANIPULONS DES RDD 
+//OBJET DE BASE SC = SPARK CONTEXTE
+//LECTURE D'UN FICHIER + ACTION COLLECT
+// 2 façons de créer des RDDS 
+//1 ere méthode pour créer un RDD
+scala> val rdd1 = sc.textFile("C:/Users/Loic/Desktop/SPARK/test.txt")
+scala> rdd1.collect
+
+//avec un fichier plus volumineux 4300-0.txt
+scala> val rdd2 = sc.textFile("C:/Users/Loic/Desktop/SPARK/4300-0.txt")
+scala> rdd2.collect
+
+//2 eme méthode pour créer un RDD avec la méthode parallelize()
+scala> val liste = List("Aziz","Mouad","Martha")
+scala> val rdd3= sc.parallelize(liste)
+scala> rdd3.collect
+
+
+//POUR JOCELIN - CONTENU DU FICHIER EN CAS DE DIFFICULTÉ DE LECTURE 
+scala> val listeEtudiants = List("Salim","Mouad","Allakouba","Asmae","Asmae","Asmae","Asmae","Salim")
+scala> val rdd4 = sc.parallelize (listeEtudiants)
+scala> rdd4.collect
+
+//LES MÉTHODES  textFile - collect - flatMap - map - reduceByKey - saveAsTextFile
+//WORDCOUNT 
+//QUESTION 1 : différence entre transformations et actions (votre fichier PDF ci-joint)
+//QUESTION 2 : différence entre flatMap et map
+//QUESTION 3 : différence entre reduceByKey et reduce et pourquoi reduceByKey dans cet exemple de WORDCOUNT
+
+scala> val textFchier = sc.textFile("C:/Users/Loic/Desktop/SPARK/etudiants.txt")
+scala> textFchier.collect 
+scala> val countsFlatMap = textFchier.flatMap(line => line.split(" "))
+scala> countsFlatMap.collect
+scala> val countsMap = countsFlatMap.map(word => (word,1))
+scala> countsMap.collect
+scala> val countsReduce = countsMap.reduceByKey(_+_)  
+scala> countsReduce.collect
+scala> countsReduce.saveAsTextFile("C:/Users/Loic/Desktop/SPARK/resultatEtudiants")
+scala> countsReduce.saveAsTextFile("C:/Users/Loic/Desktop/SPARK/resultatEtudiants")
+
+//REFORMULATION EN RENOMMANT À RDD#nombre pour illustrer la création de plusieurs RDD - DAG
+
+scala> val rdd1 = sc.textFile("C:/Users/Loic/Desktop/SPARK/etudiants.txt") 
+scala> val rdd2 = rdd1.flatMap(line => line.split(" "))
+scala> val rdd3 = rdd2.map(word => (word,1))
+scala> val rdd4 = rdd3.reduceByKey(_+_) 
+scala> rdd4.collect
+scala> rdd4.saveAsTextFile("C:/Users/Loic/Desktop/SPARK/resultatEtudiants")
+
+// MAP VERSUS flatMap
+scala> val rddmap = sc.parallelize (List("test1 test2","test3 test4","test5 test6"))
+scala> rddmap.map(x=>x.split(" ")).collect
+scala> rddmap.flatMap(x=>x.split(" ")).collect
+
+// MÉTHODE FILTER
+scala> val rddf=sc.parallelize(List("Salim","Martha-Patricia","Abed","François"))
+scala> rddf.collect
+scala> rddf.filter(x=> x.contains("-")).collect
+scala> rddf.filter(x=> !x.contains("-")).collect
+
+// MÉTHODE groupBy ET sortBy
+scala> val rddGby = sc.parallelize(List("Salim","Martha-Patricia","Abed","François","Mouloudi"))
+scala> val rddGroupBy = rddGby.groupBy (x=> x.charAt(0))
+scala> rddGroupBy.collect
+scala> val rddSort = rddGby.sortBy (x=> x.charAt(0))
+val x = rddGby.sortBy (x=> x.charAt(0), ascending=false).collect
+scala> rddSort.collect
+
+//Bonus : explorez  import scala.util.Sorting._
+
+//plus de détails pour groupBy
+scala>  val rddGby1 = sc.parallelize(List("Salim","Martha-Patricia","Abad","François","Sonia"))
+scala> rddGby1.groupBy (x=> x.charAt(0)).collect
+scala> rddGby1.groupBy (x=> x.charAt(0)).sortBy (a=> a).collect
+scala> rddGby1.groupBy (x=> x.charAt(2)).sortBy (a=> a).collect
+
+//groupByKey - reduceByKey - sortByKey
+scala> val rddGroupByKey = sc.parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7")) 
+scala> val rddGroupByKeyMap = rddGroupByKey.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+scala> rddGroupByKeyMap.collect
+scala> rddGroupByKeyMap.groupByKey().collect
+scala> rddGroupByKeyMap.reduceByKey((x,y)=> x+y ).collect
+scala> val rddreduceByKey= rddGroupByKeyMap.reduceByKey((x,y)=> x+y )
+
+//plus de détails pour sortByKey
+scala> val rddsortByKey= rddreduceByKey.sortByKey()
+scala> rddsortByKey.collect
+
+//map + sortByKey
+scala> rddGroupByKeyMap.collect
+scala> val rddGroupByKeyMapsortByKey= rddGroupByKeyMap.sortByKey()
+scala> rddGroupByKeyMapsortByKey.collect
+
+//explication de liste de transformations
+sc.parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7"))
+	.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+		.groupByKey()
+			.collect
+			
+sc.parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7"))
+	.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+		.reduceByKey((x,y)=> x+y )
+			.collect
+			
+sc.textFile("etudiants.txt")
+	.flatMap(line => line.split(" "))
+		.map(word => (word,1))
+			.reduceByKey(_+_)  
+				.saveAsTextFile("resultatEtudiants")
+
+//Array(1, 2, 3, 4, 5, 6, 7) 
+// 1+2+3++++++
+//iteration 1 : x=1, y=2, x+y=1+2 =3,
+//iteration 2 : x=3, y=3, x+y=3+3 =6, 
+//iteration 3 : x=6, y=4, x+y=6+4 =10, etc..
+//résultat final : 28
+
+
+
+//Array(10, 5, 8, 1) 
+
+//iteration 1 : x=10, y=5, x+y=10+5 =15,
+//iteration 2 : x=15, y=8, x+y=15+8 =23, 
+//iteration 3 : x=23, y=1, x+y=23+1 =24, etc..
+//résultat final : 28
+
+//KEYS - VALUES
+sc.parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7"))
+	.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+		.reduceByKey((x,y)=> x+y )
+			.keys
+				.collect
+			
+sc.parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7"))
+	.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+		.reduceByKey((x,y)=> x+y )
+			.values
+				.collect
+
+val rdd1=parallelize(List("0,11","1,14","0,3","2,19","1,3","5,7"))
+rdd1.collect
+val rdd2=rdd1.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+rdd2.collect
+val rdd3=rdd2.reduceByKey((x,y)=> x+y )
+rdd3.collect
+rdd3.keys.collect
+rdd3.values.collect
+
+		
+//récupérer les clés et les valeurs séparément keys-values
+scala> rddGroupByKeyMap.collect
+scala> rddGroupByKeyMap.keys.collect
+scala> rddGroupByKeyMap.values.collect
+
+// VOIR LES RÉPARTITIONS AVEC LA MÉTHODE GLOM
+scala> val varReduce= sc.parallelize( 1 to 7, 2)
+scala> varReduce.collect 
+scala> varReduce.glom.collect 
+
+//3 actions (reduce, fold, collect)
+scala> val varReduce= sc.parallelize( 1 to 7, 2)
+scala> varReduce.collect 
+scala> varReduce.glom.collect 
+scala> varReduce.reduce((x,y)=>x+y)
+//Array(1, 2, 3, 4, 5, 6, 7) 
+// 1+2+3++++++
+//iteration 1 : x=1, y=2, x+y=1+2 =3,
+//iteration 2 : x=3, y=3, x+y=3+3 =6, 
+//iteration 3 : x=6, y=4, x+y=6+4 =10, etc..
+//résultat final : 28
+
+//Question de Sorelle : Rappel pour le fonctionnement de calcul sur 2 noeuds 
+//onsultation de la première diapositive de INTRODUCTION À SPARK
+ 
+//FOLD ILLUSTRE BIEN LA QUESTION DE SORELLE 
+//CONTRAIREMENT À REDUCE QUI RASSEMBLE TOUS LES DONNÉES AVANT DE FAIRE LE CALCUL
+//FOLD FAIT LE CALCUL AU NIVEAU DE CHAQUE NOEUD + LE PARMÈTRE ENTRE PARENTHÈSES
+scala> val varfold= sc.parallelize( 1 to 5, 2)
+scala> varfold.glom.collect 
+scala> varfold.fold(1) ((x,y)=>x+y)
+//res3: Array[Array[Int]] = Array(Array(1, 2), Array(3, 4, 5))
+// 1er noeud : 1+2 =3 +1(param du fold) = 4 
+// 2eme noeud :3+4+5 = 12 +1(param du fold) =13 
+//sur les les 2 noeuds : 4+ 13 +1(param du fold) = 18
+
+//EXERCICE 1 FOLD  Faire ce calcul varfold.fold(3) ((x,y)=>x+y)
+//EXERCICE 2 FOLD (SON) , COMMENT VOUS EXPLIQUEZ LE RÉSULTAT 14:
+varfold.fold(1)((x,y)=> x-y)
+
+//****************************************
+//****************************************
+//PARTIE 2  - OPÉRATIONS MATHÉMATIQUES
+//****************************************
+//****************************************
+
+
+//FONCTION SAMPLE
+scala> val varsample= sc.parallelize( 1 to 100)
+scala> varsample.sample(true, 0.2, 5).collect
+// Le premier parametre detrmine si nous aurons des doublons ou non 
+// Le deuxieme parametre : taille de l'echantillon ( vous pouvez verifier avec la fonction count
+// Le troisieme parametre est le seed pour reproduire le même chantillon si nous désirons répéter les mêmes expériences 
+scala> varsample.count
+
+//****************************************
+//****************************************
+//PARTIE 3 - JOINTURE + OPÉRATIONS RELATIONELLES
+//****************************************
+//****************************************
+
+//TRANFORMATIONS
+//UNION-INTERSECTION-SUBSTRACT-
+//DISTINCT - CARTESIAN- COGROUP
+//JOIN-RIGHTOUTERJOIN-LEFTOUTERJOIN
+//ACTIONS
+//TAKEORDERED
+// Finalement, nous allons voir 2 tranformations (keyBy, coalese) 
+
+
+//tranformation union
+scala> val rdd1= sc.parallelize( List(1,2,3,4,5))
+scala> val rdd2= sc.parallelize( List(1,3,6,7))
+scala> rdd1.union(rdd2).collect
+
+//tranformation intersection
+scala> rdd1.intersection(rdd2).collect
+
+//tranformation substract
+scala> rdd1.subtract(rdd2).collect
+scala> rdd2.subtract(rdd1).collect
+
+//tranformation cartesian
+scala> rdd1.collect
+scala> rdd2.collect 
+scala> rdd1.cartesian(rdd2).collect 
+
+//tranformation distinct
+scala> val rdd3 = sc.parallelize( List(1,3,6,3,1,7,8,9))
+scala> rdd3.collect
+scala> rdd3.distinct().collect
+
+//tranformation cogroup (comme le full outer join)
+scala> val rdd4 = sc.parallelize( Array(("A","1"),("B","2"), ("C","3"), ("D","4") ))
+scala> val rdd5 = sc.parallelize( Array(("A","a"),("B","b"), ("C","c"), ("D","d") ))
+scala> rdd4.cogroup(rdd5).collect
+scala> rdd5.cogroup(rdd4).collect
+scala> val rdd6 = sc.parallelize( Array(("A","a"),("C","c")))
+scala> rdd4.cogroup(rdd6).collect
+
+//QUESTION : si on inverse clés valeurs dans l'exple précédant
+scala> val rdd4f = sc.parallelize( Array(("1","A"),("2","B"), ("3","C"), ("4","D") ))
+scala> rdd4f.cogroup(rdd5).collect
+
+//JOIN - RIGHTOUTERJOIN-LEFTOUTERJOIN
+scala> rdd4.collect
+scala> rdd5.collect 
+scala> rdd4.join(rdd5).collect
+
+
+scala> rdd4.collect
+scala> rdd6.collect
+scala> rdd4.join(rdd6).collect
+scala> rdd4.rightOuterJoin(rdd6).collect
+scala> rdd4.leftOuterJoin(rdd6).collect
+scala> rdd4.fullOuterJoin(rdd6).collect
+scala> rdd4.cogroup(rdd6).collect
+
+//ACTION TAKEORDERED
+scala> sc.parallelize(List(1,2,3,4,5)).top(1)
+scala> sc.parallelize(List(1,2,3,4)).top(1)
+scala> sc.parallelize(List(1,12,5,3,4)).top(1)
+scala> sc.parallelize(List(1,12,5,3,4)).top(2)
+scala> sc.parallelize(List(1,12,5,3,4)).takeOrdered(1)
+scala> sc.parallelize(List(1,12,5,-3,4)).takeOrdered(1)
+scala> sc.parallelize(List(1,12,5,-3,4)).takeOrdered(2)
+scala> sc.parallelize(List(1,12,5,-3,4)).takeOrdered(3)
+
+//****************************************
+//****************************************
+//PARTIE 4 - LES OPÉRATIONS DATA STRUCTURE
+//****************************************
+//****************************************
+
+
+// Finalement, nous allons voir 2 tranformations (keyBy, coalese) 
+// et 1 action (saveAsTextFile)
+// La fonction coalese permet de créer une paire RDD (une paire pour chaque élément
+// dans le RDD d'origine.
+// La clé de la paire est calculée via une fonction qui est fournie par l'utilisateur
+
+
+//keyBy
+scala> val rdd1 = sc.parallelize(List("1 val1","2 val2","3 val3","4 val4"))
+scala> rdd1.map(x=>(x.split(" ")(0),x.split(" ")(1))).collect
+scala> rdd1.keyBy(x=>x.split(" ")(0)).collect
+scala> rdd1.map(x=>(x.split(" ")(0),x)).collect
+scala> rdd1.map(x=>(x.split(" ")(0),x.split(" ")(1))).collect
+
+
+//coalese
+scala> val rdd3 = sc.parallelize(List(1,2,3,4,5,6,7,8,9,10,11),5)
+scala> rdd3.glom.collect 
+scala> rdd3.coalesce(3).glom.collect  
+scala> rdd3.coalesce(7).glom.collect  
+
+//action saveAsTextFile
+val rdd5 = sc.parallelize(List("toto tata titi toto tutu tata"))
+//scala> val rdd6 = sc.parallelize (List("toto tata","titi toto","tutu tata"))
+//scala> val rdd7 = sc.parallelize (List("toto tata titi","toto tutu tata"))
+//ou tu peux définir manuellement le nombre de partitions
+/parallelize(List("toto tata titi toto tutu tata"),1)
+val rddsave = rdd5.flatMap (l => l.split(" ")).map( w => (w,1)).reduceByKey(_+_)
+rddsave.saveAsTextFile("C:/Users/Loic/Desktop/SPARK/resultat1")
+
+
+rdd5.flatMap (l => l.split(" ")).map( w => (w,1)).reduceByKey(_+_).collect
+rdd6.flatMap (l => l.split(" ")).map( w => (w,1)).reduceByKey(_+_).collect
+rdd7.flatMap (l => l.split(" ")).map( w => (w,1)).reduceByKey(_+_).collect
+
+
+rdd5.map( w => (w,1)).reduceByKey(_+_).collect
+rdd6.map( w => (w,1)).reduceByKey(_+_).collect
+rdd7.map( w => (w,1)).reduceByKey(_+_).collect
+
+//****************************************
+//****************************************
+//PARTIE 5 - ÉVALUATIONS FORMATIVES
+//****************************************
+//****************************************
+
+//Évaluations formatives SPARK + WORKSHOP
+
+https://drive.google.com/drive/folders/1FVKeztR-4COug8xg9VlByDsPv8us2z5q?usp=sharing
+
+//WORKSHOP 1-PysparkWordCount.ipynb (voir le lien ci-haut)
+//WORKSHOP 2-pyspark.ipynb (voir le lien ci-haut) 
+//WORKSHOP 3- LIEN YOUTUBE (MISSING VALUES)  : https://docs.google.com/document/d/19mz8ScvPkKOmmbWf6xRPg7gtfuZB_MrPKv_vhp4Aw5w/edit
+//WORKSHOP 4-
+https://medium.com/swlh/spark-dataset-apis-a-gentle-introduction-108cdeafdea5
+https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/8963851468310921/1413687243597086/5846184720595634/latest.html 
+//COMANDES UTILES POUR CMD
+//WORKSHOP 5: https://sparkbyexamples.com/spark/spark-shell-usage-with-examples/
+//WORKSHOP 6:important tuto 1 : https://mungingdata.com/apache-spark/using-the-console/
+
+
+//****************************************
+//****************************************
+//PARTIE 6 - SPARK SQL
+//****************************************
+//****************************************
+scala> val rdd = sc.parallelize (List((1,"toto","yoyo"),(2,"titi","jiji"),(3,"tata","gogo"),(4,"tutu","nono")))
+scala> val dataframe = rdd.toDF("id","nom","prenom")
+scala> dataframe.show()
+scala> dataframe.createOrReplaceTempView("personnes")
+scala> val dataframeSQL = spark.sql("select * from personnes")
+scala> dataframeSQL.show
+
+//ICI VOUS ALLEZ AVOIR UN PROBLÈME AVEC rdd.toDF à cause 
+//d'un BUG de la version de HADOOP SUR LA LIGNE DE COMMANDE WINDOWS CMD
+//SOLUTION 0 - CHANGER À SPARK 3.3.0 (RÉCENT) VOIR LE DOC D'INSTALLATION
+
+//****************************************
+//****************************************
+//PARTIE 6 - SOLUTION 1 - EQUIVALENT SPARK SQL 
+//AVEC PYSPARK DANS GOOGLE COLAB OU NOTEBOOK DATABRICKS
+//****************************************
+//****************************************
+
+
+
+
+//REGARDER CorrectionRDDtoDF.ipynb
+
+!pip install pyspark
+import pyspark
+from pyspark import SparkContext
+from pyspark.sql import SparkSession
+sc.stop()
+sc = SparkContext()
+spark = SparkSession.builder.master("local").appName("exemple1").getOrCreate()
+
+
+//sc.stop()
+x=[(1,'toto','yoyo'),(2,'titi','jiji'),(3,'tata','gogo'),(4,'tutu','nono')]
+rdd = sc.parallelize (x)
+dataframe = rdd.toDF(("id","nom","prenom"))
+dataframe.show()
+dataframe.createOrReplaceTempView("personnes")
+dataframeSQL = spark.sql("select * from personnes where id= 1")
+dataframeSQL.show()
+spark.sql("select * from personnes where id= 1").show()
+
+
+
+#dataframe = rdd.toDF(['id','nom','prenom'])
+# TRÈS IMPORTANT  : 
+# 1----il est important de commencer par sc.stop() parceque nous pouvons pas avoir 2 instances de SparkContext
+# 2 -- Il faut vérifier votre structure de données exemple de 2 listes (rdd1 est différent de rdd2)
+# 2 -- List((1,"toto","yoyo") (marche avec sacala ) est différent de x=[(1,'toto','yoyo')...(pyspark = pyhton + spark)
+# rdd1 = sc.parallelize (List((1,"toto","yoyo"),(2,"titi","jiji"),(3,"tata","gogo"),(4,"tutu","nono")))  --dataframe = rdd.toDF("id","nom","prenom")
+# rdd2 = sc.parallelize (x)
+# x=[(1,'toto','yoyo'),(2,'titi','jiji'),(3,'tata','gogo'),(4,'tutu','nono')]
+#3 -- il faut toujours vérifier la vesrion de spark avec sc.version
+#4 - exemple nous avons utilisé ceci sur cloudera val dataframe = rdd.toDF("id","nom","prenom")
+#4 - mais par contre nous avons utilisé ceci sur google colab rdd.toDF(("id","nom","prenom"))
+# Réponse : (List((1,"toto","yoyo"), .... vs [(1,'toto','yoyo'),...)
+
+
+
+
+
+
+
+//****************************************
+//****************************************
+
+//****************************************
+//****************************************
+//PARTIE 6 - SOLUTION 2 - CLOUDERA 
+//TRAVAILLER AVEC UNE AUTRE VERSION DE SPARK
+//scala> sc.version
+//res4: String = 1.3.0
+//****************************************
+//****************************************
+
+val sqlC = new org.apache.spark.sql.SQLContext(sc)
+import sqlC.implicits._
+val rdd = sc.parallelize (List((1,"toto","yoyo"),(2,"titi","jiji"),(3,"tata","gogo"),(4,"tutu","nono")))
+val dataframe = rdd.toDF("id","nom","prenom")
+dataframe.show()
+
+//VOUS POUVEZ ESSAYER CE CODE AUSSI
+
+val rdd = sc.parallelize(
+  Seq(
+    ("first", Array(2.0, 1.0, 2.1, 5.4)),
+    ("test", Array(1.5, 0.5, 0.9, 3.7)),
+    ("choose", Array(8.0, 2.9, 9.1, 2.5))
+  )
+)
+
+rdd.toDF().show()
+
+//****************************************
+//****************************************
+//PARTIE 6 - SUITE SPARK SQL
+//****************************************
+//****************************************
+//QUESTION : 1-C'EST QUOI PYSPARK-SPARK SQL ET C'EST QUOI LE LANGAGE NATIF DE SPARK
+//2-RDD VS DATASET VS DATAFRAME (COMPARAISON ET FONCTIONS DE TRANSFORMATIONS)
+
+scala> val rdd = sc.parallelize (List((1,"toto","yoyo"),(2,"titi","jiji"),(3,"tata","gogo"),(4,"tutu","nono")))
+scala> val dataframe = rdd.toDF("id","nom","prenom")
+scala> dataframe.show()
+scala> dataframe.createOrReplaceTempView("personnes")
+scala> val dataframeSQL = spark.sql("select * from personnes")
+
+scala> spark.sql("select * from personnes").show()
+scala> spark.sql("select * from personnes where id =1").show()
+scala> spark.sql("select count(*) from personnes").show()
+scala> spark.sql("select * from personnes order by nom asc").show()
+scala> spark.sql("select * from personnes order by nom desc").show()
+
+
+//****************************************
+//****************************************
+//PARTIE 7 - CRÉATION D'UN DATAFRAME EN UTILISANT UN OBJET JSON
+//****************************************
+//****************************************
+
+//Rappel et exercices json : https://drive.google.com/drive/folders/15XS8Mc22C1m0h4LEevfndNX5vGOfU-sM?usp=sharing
+exemple de fichier json
+{"name":"Michael"}
+{"name":"Andy","age":30}
+{"name":"Justin","age":19}
+
+scala> import org.apache.spark.sql.SQLContext
+scala> val sqlContext = new SQLContext (sc)
+scala> val dataframe = sqlContext.read.format("json").option("inferSchema","true").load("C:/Users/Loic/Desktop/SPARK/people.json")
+scala> dataframe.createOrReplaceTempView("people")
+scala> dataframe.printSchema
+scala> spark.sql("select * from people")
+scala> spark.sql("select * from people where age is not null").show
+sacla> spark.sql("select avg(age) from people where age is not null").show
+sacla> spark.sql("select * from people where age is not null order by id desc").show
+sacla> spark.sql("select * from people where age is not null order by id asc").show
+sacla> spark.sql("select * from people where age is not null order by id.first_name asc").show
+
+sc.textfile(.txt) ==> rdd
+.json ==> df
+
+//avec du pyspark
+val df = spark.read.json("people.json")
+df.printSchema()
+df.show()
+df.createOrReplaceTempView("people")
+spark.sql("select * from people").show()
+spark.sql("select * from people where age is not null").show()
+
+
+//****************************************
+//****************************************
+//PARTIE 8 - CRÉATION D'UN DATAFRAME EN UTILISANT UN FICHIER
+//****************************************
+//****************************************
+
+scala> import org.apache.spark.sql.SQLContext
+scala> val sqlContext = new SQLContext (sc)
+scala> val dataframe = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:/Users/Loic/Desktop/SPARK/titanic.csv")
+scala> dataframe.printSchema
+scala> dataframe.select("name").show 
+scala> dataframe.createOrReplaceTempView("titanic")
+scala> spark.sql("select name,age from titanic").show
+scala> spark.sql("select name,age from titanic where age > 18").show
+scala> spark.sql("select avg(age) from titanic").show 
+scala> spark.sql("select name,age from titanic order by name").show
+scala> spark.sql("select count(*) from titanic").show
+
+
+//en PYSPARk (REGARDEZ LE FICHIER CorrectionRDDtoDF.ipynb)
+df2 = spark.read.option("header",True) \
+     .csv("titanic.csv")
+df2.printSchema()
+df2.show()
+df2.createOrReplaceTempView("titanic")
+spark.sql("select * from titanic").show()
+spark.sql("select name,age from titanic where age > 18").show() 
+spark.sql("select avg(age) from titanic").show() 
+spark.sql("select name,age from titanic order by name").show()
+spark.sql("select count(*) from titanic").show()
+
+
+//****************************************
+//****************************************
+//PARTIE 9 - CONVERTIR UN DF EN RDD
+//****************************************
+//****************************************
+
+scala> import org.apache.spark.sql.SQLContext
+scala> val sqlContext = new SQLContext (sc)
+scala> val df = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:/Users/Loic/Desktop/SPARK/titanic.csv")
+scala> df.printSchema
+scala> df.select("name").show
+
+//Combien de Jack sur le titanic ?
+//mapReduce sur les noms !!! Grace aux RDDs
+
+scala> val dfToRdd = df.rdd
+//Convertir le row en String
+scala> val dfToRddString = df.select("name").map(x=>x.toString()).rdd 
+scala> dfToRddString.collect
+ 
+//pour nettoyer 
+ 
+scala> val nettoye= dfToRddString.map(x=>x.replace("[", "")).map(x=>x.replace("]", ""));
+scala> val nettoye2= dfToRddString.map(x=>x.replace("[", "")).map(x=>x.replace("]", "")).map(x=>x.replace("(","")).map(x=>x.replace(")", ""));
+scala> val nettoye3 = nettoye2.map(x=>x.replace("\"",""))
+//ICI JE PEUX SPLITTER
+scala> val rddFlatMap =  nettoye3.flatMap(_.split(","))
+scala> rddFlatMap.collect
+scala> dfToRddString.collect 
+scala> var rddMap = rddFlatMap.map(x=> (x,1))
+scala> rddMap.collect
+scala> val wordCount = rddMap.reduceByKey(_+_)
+scala> wordCount.collect
+
+//ignorer
+//wordCount.map(x=>(x.split(",")(0),x.split(",")(1).toInt))
+//			.keys
+//				.collect
+
+
+dfToRddString
+	.map(x=>x.replace("[", ""))
+	.map(x=>x.replace("]", ""))
+	.map(x=>x.replace("(",""))
+	.map(x=>x.replace(")", ""))
+	.flatMap(x=>x.split(","))
+	.map(x=> (x,1))
+	.reduceByKey(_+_)
+	.saveAsTextFile("D:/0-DESKTOP C/DESKTOP25-10-2022/SPARK/jack") 
+	
+
+//tester filter dans dataframe
+import org.apache.spark.sql.SQLContext
+val sqlContext = new SQLContext (sc)
+val dataframe = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:/Users/rehou/OneDrive/Bureau/test/titanic.csv")
+val rdd_test_contains = dataframe.select("name").map(x=>x.toString()).filter {
+  element => element.contains("j") 
+}
+rdd_test_contains.collect
+
+
+
+//tester filter dans rdd
+import org.apache.spark.sql.SQLContext
+val sqlContext = new SQLContext (sc)
+val dataframe = sqlContext.read.format("csv").option("header","true").option("inferSchema","true").load("C:/Users/rehou/OneDrive/Bureau/test/titanic.csv")
+// not this (look next line) val dfToRdd = dataframe.rdd
+val dfToRddString = dataframe.select("name").map(x=>x.toString()).rdd 
+dfToRddString.collect 
+dfToRddString.map(x=>x.contains("h")).collect
+dfToRddString.filter(x=>x.contains("h")).collect
+
+
+
+//trouver ceux qui contiennet  Emil
+dfToRddString
+	.map(x=>x.replace("[", ""))
+	.map(x=>x.replace("]", ""))
+	.map(x=>x.replace("(",""))
+	.map(x=>x.replace(")", ""))
+	.map(x=>x.replace("\"", ""))
+	.flatMap(x=>x.split(","))
+	.filter(x=>x.contains("Emil"))
+	.map(x=> (x,1))
+	.reduceByKey(_+_)
+	.collect
+	
+	
+//calculer le nombre 
+dfToRddString
+	.map(x=>x.replace("[", ""))
+	.map(x=>x.replace("]", ""))
+	.map(x=>x.replace("(",""))
+	.map(x=>x.replace(")", ""))
+	.map(x=>x.replace("\"", ""))
+	.flatMap(x=>x.split(","))
+	.filter(x=>x.contains("Emil"))
+	.map(x=> (x,1))
+	.reduceByKey(_+_)
+	.count
+
+//calculer la longueur de chaque ligne
+dfToRddString
+	.map(x=>x.replace("[", ""))
+	.map(x=>x.replace("]", ""))
+	.map(x=>x.replace("(",""))
+	.map(x=>x.replace(")", ""))
+	.map(x=>x.replace("\"", ""))
+	.flatMap(x=>x.split(","))
+	.filter(x=>x.contains("Emil"))
+	.map(x=> (x,1))
+	.reduceByKey(_+_)
+	.toDF("nom","nombre")
+	.select(length($"nom").as("no_of_characters"))
+	.show
+
+
+
+//methode alexander
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+ 
+ 
+val conf = new SparkConf().setAppName("TitanicDataAnalysis").setMaster("local")
+val sc = new SparkContext(conf)
+val sqlContext = new SQLContext(sc)
+ 
+val dataframe = sqlContext.read.format("csv")
+                   .option("header", "true")
+                   .option("inferSchema", "true")
+                   .load("c:/titanic.csv")
+ 
+dataframe.createOrReplaceTempView("titanic")
+
+ 
+sqlContext.sql("SELECT * FROM titanic WHERE name LIKE '%Emil%'").show(
+
+
+
+
+//a ignorer
+val rdd_first = dataframe.filter {
+  element => element.contains("Louis") 
+}
+dataframe.filter(_contains("Louis")).collect
+//size dataframe 
+https://stackoverflow.com/questions/46098573/get-the-size-length-of-an-array-column
+
+
+
+// REMARQUE IMPORTANTE: LE CODE CI-DESSUS FONCTIONNE BIEN AVEC LA VERSION 3
+// DE SPARK. SI VOUS UTILISEZ CLOUDERA, IL FAUT SAVOIR QUE VOUS UTILISEZ 
+// LA VERSION 1.3.0 (ANCIENNE VERSION) EXEMPLE sqlContext.read.format("csv")
+// Ne fonctionne pas avec la version 1.3.0 
+// Je vous donne comme exercice de convertir ce code sur Cloudera (Tache 1)
+// sur PySPARK (Tache 2)
+
+//EXERCICE1 - CONVERTIR CE TRAVAIL EN SCALA VERSION 1.3.0
+//EXERCICE2 - CONVERTIR CE TRAVAIL EN PYSPARK
+
+//****************************************
+//****************************************
+//PARTIE 10 - SparkSQL avec les SGBDR (postgresql)
+//****************************************
+//****************************************
+//ON VA INSTALLER DEUX CHOSES  5432
+//(1) download postgresql windows : https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+//(2) le connecteur jdbc pour postgres : https://jdbc.postgresql.org/download/
+//(3) 
+CREATE TABLE personnes 
+(id INTEGER, nom CHARACTER VARYING(255), 
+prenom CHARACTER VARYING(255),age INTEGER,cp INTEGER);
+
+Insert into personnes VALUES (1,'Louis','Martin',20,31000);	
+Insert into personnes VALUES (2,'Hernandez','Martha',20,31000);	
+Insert into personnes VALUES (3,'Abdelali','Salim',20,31000);
+Insert into personnes VALUES (4,'Al Barka','Mouadh',20,31000);	
+Insert into personnes VALUES (5,'Allakouba','Ndintamadji',20,31000);	
+Insert into personnes VALUES (6,'Arafa','Lamine',20,31000);
+Insert into personnes VALUES (7,'Bessadi','Rahima',20,32000);	
+Insert into personnes VALUES (8,'Temblay','Ninon',20,32000);	
+Insert into personnes VALUES (9,'El Akad','Khadija',20,32000);
+
+//select * from public.personnes;
+
+scala> spark-shell 
+ --driver-class-path C:\SPARKHADOOP\spark-3.3.0-bin-hadoop3\jars\postgresql-42.5.0.jar
+ --jars C:\SPARKHADOOP\spark-3.3.0-bin-hadoop3\jars\postgresql-42.5.0.jar
+
+spark-shell --driver-class-path C:\SPARKHADOOP\spark-3.3.0-bin-hadoop3\jars\postgresql-42.5.0.jar --jars C:\SPARKHADOOP\spark-3.3.0-bin-hadoop3\jars\postgresql-42.5.0.jar
+
+
+spark-shell --driver-class-path C:\Users\rehou\Documents\SPARK\spark-3.3.0-bin-hadoop3\jars\postgresql-42.7.5.jar 
+			--jars C:\Users\rehou\Documents\SPARK\spark-3.3.0-bin-hadoop3\jars\postgresql-42.7.5.jar
+
+
+scala> val jdbcDF = spark.read.format("jdbc").
+     | option("url","jdbc:postgresql://127.0.0.1/postgres").
+     | option("dbtable","public.personnes").
+     | option("user","postgres").
+     | option("password","postgres").
+     | load
+
+scala> jdbcDF.printSchema()
+scala> jdbcDF.show()
+scala> jdbcDF.columns
+scala> jdbcDF.dtypes
+scala> jdbcDF.show
+scala> jdbcDF.collect
+scala> val df = jdbcDF.drop("cp")
+scala> df.show
+scala> val df2 = jdbcDF.filter("cp <> 31000")
+scala> df2.show
+scala> val df3 = jdbcDF.filter("!cp <> 31000")
+scala> df3.show
+scala> val df4 = jdbcDF.filter("cp == 31000")
+scala> df4.show
+scala> jdbcDF.select("age","cp").distinct().show 
+
+//****************************************
+//****************************************
+//PARTIE 06 - RDD 			--> DATAFRAME + SPARK SQL
+//PARTIE 07 - FICHIER JSON 	--> DATAFRAME
+//PARTIE 08 - FICHIER CSV 	--> DATAFRAME
+//PARTIE 09 - DATAFRAME 	--> RDD
+//PARTIE 10 - SparkSQL avec les SGBDR (postgresql)
+//PARTIE 11 - PLUS SUR LES DATAFRAMES AVEC SparkSQL 
+//PARTIE 12 - LES DATASETS
+
+//PARTIE 13 - SPARK STREAMING 
+//****************************************
+//****************************************
+
+
+//****************************************
+//****************************************
+//PARTIE 14 - SPARK STREAMING 
+//****************************************
+//****************************************
+
+
+-----------------------------------------------------------------------------------------
+---  Dstream : reduceByKey
+-----------------------------------------------------------------------------------------
+# TERMINAL 1:
+-------------
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._ 
+val ssc = new StreamingContext(sc, Seconds(3))
+val lines = ssc.socketTextStream("localhost", 9988)
+val words = lines.flatMap(_.split(" "))
+val pairs = words.map(word => (word, 1))
+val wordCounts = pairs.reduceByKey(_ + _)
+wordCounts.print()
+ssc.start()
+# TERMINAL 2:
+-------------
+// permet d'écrire les mots qui seront ensuite traités
+ncat -lk 9988 
+
+
+-----------------------------------------------------------------------------------------
+--- file foreachRDD
+-----------------------------------------------------------------------------------------
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._
+val ssc = new StreamingContext(sc, Seconds(3))
+val file = ssc.textFileStream("C:/Users/Loic/Desktop/SPARK/file1")
+file.foreachRDD(t=> {
+val test = t.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+test.saveAsTextFile("C:/Users/Loic/Desktop/SPARK/file2")
+                    })
+ssc.start()
+
+
+
+
+
+
+
+//****************************************
+//****************************************
+//PARTIE 15 - SPARK STREAMING  UTILE ++++ ANCIENNE VERSION
+//****************************************
+//****************************************
+
+
+-----------------------------------------------------------------------------------------
+---  Dstream : reduceByKey
+-----------------------------------------------------------------------------------------
+# TERMINAL 1:
+-------------
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._ // not necessary since Spark 1.3
+
+//val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount").set("spark.driver.allowMultipleContexts","true")
+//val ssc = new StreamingContext(conf, Seconds(3))
+
+val ssc = new StreamingContext(sc, Seconds(3))
+
+val lines = ssc.socketTextStream("localhost", 9988)
+
+val words = lines.flatMap(_.split(" "))
+
+import org.apache.spark.streaming.StreamingContext._ // not necessary since Spark 1.3
+
+// Count each word in each batch
+val pairs = words.map(word => (word, 1))
+val wordCounts = pairs.reduceByKey(_ + _)
+
+wordCounts.print()
+
+// Start the computation
+ssc.start()
+
+# TERMINAL 2:
+-------------
+// permet d'écrire les mots qui seront ensuite traités
+nc -lk 9988 
+
+
+
+-----------------------------------------------------------------------------------------
+--- file foreachRDD
+-----------------------------------------------------------------------------------------
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._
+
+val conf = new SparkConf().setAppName("File Count").setMaster("local[2]").set("spark.driver.allowMultipleContexts","true")
+
+val sc = new SparkContext(conf)
+val ssc = new StreamingContext(sc, Seconds(1))
+
+val file = ssc.textFileStream("/opt/spark/examples/src/main/resources/file1")
+file.foreachRDD(t=> {
+
+val test = t.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+
+test.saveAsTextFile("/opt/spark/examples/src/main/resources/file2")
+
+                    })
+ssc.start()
+
+
+-----------------------------------------------------------------------------------------
+--- Dstream : Sliding Window 
+-----------------------------------------------------------------------------------------
+# TERMINAL 1:
+-------------
+
+import org.apache.spark._
+import org.apache.spark.streaming._
+import org.apache.spark.streaming.StreamingContext._ // not necessary since Spark 1.3
+
+val conf = new SparkConf().setMaster("local[2]").setAppName("NetworkWordCount").set("spark.driver.allowMultipleContexts","true")
+val ssc = new StreamingContext(conf, Seconds(3))
+
+val mystream = ssc.socketTextStream("localhost", 9988)
+
+//On applique ce traitement sur l'ensemble des DStream datant de moins d'une
+//minutes. Le calcul est refait toute les 4 secondes
+
+
+var words = mystream.flatMap(line => line.split(" ")).map(x=>(x,1))
+
+val nbMot = words.reduceByKeyAndWindow((x:Int,y:Int)=>x+y,Seconds(9),Seconds(3))
+
+nbMot.print()
+
+ssc.start()
+
+
+
+# TERMINAL 2:
+-------------
+// permet d'écrire les mots qui seront ensuite traités
+nc -lk 9988
+
+
+
+
+
+
+  
+
+//****************************************
+//****************************************
+//PARTIE 11 - PLUS SUR LES DATAFRAMES AVEC SparkSQL 
+//****************************************
+//****************************************
+
+// Il s'agit de manipuler les méthodes suivantes : 
+// Opérations sur les métadonnées : DataFrame.columns, DataFrame.dtypes
+// Opérations de base sur les DataFrame comme : show(), drop(), filter(), distinct()
+// Pour voir les différentes manip, merci de vous référer ci-haut !
+
+
+
+
+//****************************************
+//****************************************
+//PARTIE 12 - COMPARAISON RDD , DF, DS (UTILISATION DES DS AVEC SPARK SQL) 
+// COMPARAISON DES STRUCTURES DE DONNÉES RDD ET DF
+//****************************************
+//****************************************
+
+//****************************************
+// COMPARAISON DES STRUCTURES DE DONNÉES RDD ET DF
+//****************************************
+//LES RDDS
+//1 -LES RDD manipulent principalement des données non structurés
+//2 - PAS DE SCHÉMAS DE DONNÉES AVEC LES RDDS
+//3 - PAS DE MOTEUR D'OPTIMISATION POUR LES RDDS ==> LIMITATION AU NIVEAU DE L'UTILISATION DE MÉMOIRE
+
+//LES DFS
+//1 - PAS DE SÉCURITÉ DE TYPE À LA COMPILATION (STRUCTURE DE DONNÉES SQL)
+// LA STRUCTURE EST INCONNUE SI ON CONNAIT PAS LES TYPES ==> MANIPULATION DES DONNÉES IMPOSSIBLE
+//2 - PAS DE CONVERSION OBJET DE DOMAINE
+// BIEN QUE NOUS POUVONS CONVERTIR L'OBJET DE DOMAINE EN DATA FRAME, UNE FOIS QUE
+//NOUS LE FERONS, NOUS NE POUVONS PAS REGÉNÉRER L'OBJET DE DOMMAINE
+//OBJET DE DOMAINE ==> DF MAIS DF ==> REGÉNÉRER OBJET DE DOMAINE IMPOSSIBLE
+//VOIR LE TABLEAU DANS PPT INTRODUCTION A SPARK PAGE 25
+
+SCALA> case class Person (name: String, age : Long)
+SCALA> val caseClassDS =  Seq(Person("Aziz",35)).toDS
+SCALA> caseClassDS.show 
+SCALA> val df =  Seq(Person("Aziz",35)).toDF
+SCALA> df.show 
+
+SCALA> val implicitDS = Seq(1,2,3,4).toDS()
+SCALA> implicitDS.map(_+1).collect()
+//Vous pouvez tester les manips avec les DS en cliqaunt sur la tabulation après 
+//la variable implicitDS
+SCALA> implicitDS.(faites tabulation)
+//récupérez le fichier people.json  (il est la : 6-Introduction à SPARK SQL V5 - people + Titanic)
+//vous allez le mettre sur votre disque puis le lire avec la fonction load
+//pour simplifier nous allons définir un val path (sinon le code va être très long
+
+SCALA> val path ="  mettez votre chemin ici"
+SCALA> val peopleDF = spark.read.json(path)
+SCALA> peopleDF.show
+
+//maintenant DS
+SCALA> peopleDF = spark.read.json(path).as[Person]
+SCALA> peopleDS.show
+
+
+//****************************************
+//****************************************
+//PARTIE 13 - SPARK STREAMING
+//****************************************
+//****************************************
+
+ 
+
+//****************************************
+//****************************************
+//PARTIE 30 - SparkSQL avec les NO-SQL
+//****************************************
+//****************************************
+
+
+https://stackoverflow.com/questions/36410061/spark-query-unclosed-character-literal
+//****************************************
+//****************************************
+//UTILE 1 - COMMANDE LOAD ET ÉCRIRE LE TOUS DANS UN FICHIER
+//****************************************
+//****************************************
+
+//écrire dans hello.scala
+//:load -v hello.scala
+//:load -v 'C:/Users/Loic/Desktop/SPARK/testscala/hello.scala'
+//contenu de hello.scala
+val rdd = sc.parallelize (List((1,"toto","yoyo"),(2,"titi","jiji"),(3,"tata","gogo"),(4,"tutu","nono")))
+
+//****************************************
+//****************************************
+//UTILE 2 - VERSION DE SPARK
+//****************************************
+//****************************************
+util.Properties.versionString (from Scala Shell)
+spark-submit --version (outside Scala Shell)
+sc.version (from Scala Shell)
+
+//****************************************
+//****************************************
+//UTILE 3 - COMMANDES POUR CMD SCALA
+//****************************************
+//****************************************
+important tuto 0 : https://sparkbyexamples.com/spark/spark-shell-usage-with-examples/
+important tuto 1 : https://mungingdata.com/apache-spark/using-the-console/
+
+
+//****************************************
+//****************************************
+//UTILE 4 - WORKSHOP3 - NETTOYAGE DE DONNÉES
+// OBLIGATOIRE SCALA + DATABRICKS (PROJET 3 VALO)
+//+ MISSING VALUES
+//LES WORKSHOP 1 et 2 ÉTAIENT PARTAGÉES COMME ÉVALUATION FORMATIVE
+//****************************************
+//****************************************
+important tuto 2 : https://medium.com/swlh/spark-dataset-apis-a-gentle-introduction-108cdeafdea5
+important tuto 2 : https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/8963851468310921/1413687243597086/5846184720595634/latest.html 
+
+//****************************************
+//****************************************
+//UTILE 5 - WORKSHOP4 - NETTOYAGE DE DONNÉES
+// RÉFÉRENCE YOUTUBE (AJOUTER LE LIEN YOUTUBE + LIEN DONNÉES)
+//+ MISSING VALUES
+//****************************************
+//****************************************
+important tuto 2 : LIEN YOUTUBE
+important tuto 2 : LIEN DONNÉES
+
+
+
+
+
+https://stackoverflow.com/questions/62913771/how-to-create-spark-dataframe-having-more-than-22-columns-using-seq-todf
