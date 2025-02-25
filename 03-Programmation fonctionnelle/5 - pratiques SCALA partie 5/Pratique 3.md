@@ -172,3 +172,49 @@ rdd.count()
 ```
 
 ---
+# Annexes  idées de projets
+---
+
+
+
+### 1️⃣ **Projet 1 : Analyse des stocks boursiers**
+- **Objectif** : Charger un fichier CSV contenant des données boursières, le convertir en `RDD`, puis en `DataFrame` et calculer des indicateurs financiers.
+- **Tâches** :
+  1. Lire et parser un fichier CSV (exclure l'en-tête).
+  2. Transformer les données en `RDD[Stock]` puis en `DataFrame`.
+  3. Calculer la **moyenne mobile** sur 5 jours.
+  4. Partitionner et sauvegarder les résultats en **Parquet**.
+  5. Générer des statistiques : prix moyen, volume moyen.
+
+### 2️⃣ **Projet 2 : Analyse des logs web**
+- **Objectif** : Traiter un fichier de logs Apache (`access.log`), analyser le trafic et détecter les IPs les plus actives.
+- **Tâches** :
+  1. Charger les logs depuis un fichier.
+  2. Extraire les champs utiles : IP, URL, code HTTP.
+  3. Déterminer les **top 10 IPs** en termes de requêtes.
+  4. Détecter les erreurs 404 et 500.
+  5. Sauvegarder les résultats sous format **Parquet**.
+
+### 3️⃣ **Projet 3 : Recommandation de films avec Spark MLlib**
+- **Objectif** : Utiliser un dataset de films (`ratings.csv`) et appliquer un **filtrage collaboratif** pour la recommandation.
+- **Tâches** :
+  1. Charger et nettoyer les données (`userId, movieId, rating`).
+  2. Utiliser l’algorithme **ALS (Alternating Least Squares)** pour recommander des films.
+  3. Évaluer le modèle en calculant **RMSE**.
+  4. Sauvegarder les résultats en **Parquet**.
+
+### 4️⃣ **Projet 4 : Détection d’anomalies sur des transactions**
+- **Objectif** : Identifier des transactions suspectes dans un dataset bancaire.
+- **Tâches** :
+  1. Charger un fichier **transactions.csv** (`userId, amount, timestamp`).
+  2. Déterminer les transactions dont le montant dépasse de **3 écarts-types** la moyenne de l’utilisateur.
+  3. Utiliser une **fenêtre temporelle** pour suivre l’évolution des dépenses.
+  4. Sauvegarder les résultats sous **format Parquet**.
+
+### 📌 **Matériel et outils**
+- **Scala + Apache Spark** (`RDD`, `DataFrame`, `Window functions`, `MLlib`)
+- **Formats de sortie** : CSV, JSON, Parquet
+- **IDE recommandés** : IntelliJ, VS Code avec Metals
+
+💡 **Bonus** : Ajoute une partie **optimisation** où ils doivent expérimenter avec `cache()`, `persist()`, et la gestion des partitions.
+
