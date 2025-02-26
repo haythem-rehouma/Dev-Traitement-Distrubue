@@ -374,4 +374,165 @@ project
 │   │   │   │   │   ├── arg: -nobootcp
 ```
 
+---
+# Annexe 2 - Explication détaillée de chaque section de notre fichier `pom.xml`
+---
+
+*Avec cet annexe, **vous comprendrez comment fonctionne un `pom.xml`** pour un projet **Scala avec Spark et Maven dans IntelliJ IDEA** !*
+
+
+
+### **📌 Explication des Sections du `pom.xml`**
+```
++----------------------+----------------------------------------------------------+
+|      Section        |                          Explication                       |
++----------------------+----------------------------------------------------------+
+| project             | Décrit le projet Maven et contient toutes les autres      |
+|                      | sections nécessaires pour le build et la gestion des     |
+|                      | dépendances.                                             |
++----------------------+----------------------------------------------------------+
+| modelVersion        | Indique la version du modèle de projet Maven utilisé.     |
+|                      | Ici, c'est la version `4.0.0` qui est standard.          |
++----------------------+----------------------------------------------------------+
+| groupId             | Identifie le groupe du projet. C'est une sorte de         |
+|                      | "namespace". Ici, `sample` est défini.                   |
++----------------------+----------------------------------------------------------+
+| artifactId          | Nom unique du projet dans le groupe. Ici,                 |
+|                      | `scala-module-dependency-sample` est défini.             |
++----------------------+----------------------------------------------------------+
+| version             | Version actuelle du projet. Ici, `1.0-SNAPSHOT` indique   |
+|                      | qu’il s’agit d’une version en développement.             |
++----------------------+----------------------------------------------------------+
+| properties          | Contient des variables globales pour le projet Maven.     |
+|                      | Exemple : `encoding=UTF-8` pour gérer l’encodage.        |
++----------------------+----------------------------------------------------------+
+| profiles            | Permet de définir plusieurs configurations pour un même   |
+|                      | projet. Chaque `profile` peut contenir des dépendances   |
+|                      | différentes selon les besoins.                           |
++----------------------+----------------------------------------------------------+
+| profile scala-2.12  | Configuration spécifique pour Scala 2.12.7.               |
+|                      | Il définit les dépendances pour cette version.           |
++----------------------+----------------------------------------------------------+
+| profile scala-2.11  | Configuration spécifique pour Scala 2.11.12.              |
+|                      | Il définit ses propres dépendances.                      |
++----------------------+----------------------------------------------------------+
+| profile scala-2.10  | Configuration spécifique pour Scala 2.10.7.               |
+|                      | Il définit ses propres dépendances.                      |
++----------------------+----------------------------------------------------------+
+| dependencies        | Liste des bibliothèques nécessaires pour exécuter le code.|
+|                      | Exemple : Spark, Scala standard, XML, Parser, etc.      |
++----------------------+----------------------------------------------------------+
+| build              | Contient les instructions pour compiler et exécuter le    |
+|                      | projet. Il inclut des plugins qui facilitent le travail.|
++----------------------+----------------------------------------------------------+
+| sourceDirectory     | Définit où se trouvent les fichiers Scala.                |
+|                      | Ici, `src/main/scala` est défini comme source.          |
++----------------------+----------------------------------------------------------+
+| testSourceDirectory | Définit où se trouvent les fichiers de tests Scala.      |
+|                      | Ici, `src/test/scala` est défini.                        |
++----------------------+----------------------------------------------------------+
+| plugins             | Liste des outils Maven qui aident au processus de build.  |
++----------------------+----------------------------------------------------------+
+| maven-compiler-plugin | Plugin pour compiler le code Java/Scala dans le projet. |
+|                      | Ici, la version utilisée est `3.3`.                      |
++----------------------+----------------------------------------------------------+
+| scala-maven-plugin  | Plugin qui permet de compiler et exécuter du Scala       |
+|                      | dans un projet Maven. Version `3.2.2` utilisée ici.      |
++----------------------+----------------------------------------------------------+
+| executions         | Définit quelles tâches Maven doit exécuter automatiquement.|
+|                      | Exemple : compilation et test du code Scala.            |
++----------------------+----------------------------------------------------------+
+| goals               | Liste des actions à exécuter lors du build.               |
+|                      | Ici : `compile` (compiler le code), `testCompile` (tests).|
++----------------------+----------------------------------------------------------+
+| configuration       | Contient des paramètres avancés pour les plugins.         |
+|                      | Exemple : `-nobootcp` pour éviter certains conflits.    |
++----------------------+----------------------------------------------------------+
+```
+
+---
+
+### **🛠 Détails des Versions Scala utilisées**
+```
++------------+------------------------------+--------------------------+
+| Version    | Compatibilité avec Spark     | Commentaire               |
++------------+------------------------------+--------------------------+
+| Scala 2.12 | Compatible avec Spark 3.3.0  | Utilisée par défaut       |
++------------+------------------------------+--------------------------+
+| Scala 2.11 | Ancienne version supportée   | Nécessaire pour certains  |
+|            | mais obsolète pour Spark 3.x | projets legacy            |
++------------+------------------------------+--------------------------+
+| Scala 2.10 | Très ancienne version        | Rarement utilisée         |
++------------+------------------------------+--------------------------+
+```
+
+---
+
+### **🚀 Explication des Profils (`profiles`)**
+Les **profils Maven** permettent d’avoir **différentes configurations** pour un même projet. Ici, trois profils sont définis :
+1. **Scala 2.12 (Par défaut)** :  
+   - Active les dépendances pour Scala 2.12.7.  
+   - Utilise Spark 3.3.0.  
+
+2. **Scala 2.11** :  
+   - Charge les dépendances pour Scala 2.11.12.  
+   - Peut être utile pour des projets plus anciens.  
+
+3. **Scala 2.10** :  
+   - Définit les bibliothèques compatibles avec Scala 2.10.7.  
+   - Très peu utilisé aujourd’hui.  
+
+---
+
+### **📦 Explication des Dépendances (`dependencies`)**
+```
++------------------------------------------+--------------------------------------------+
+| Dépendance                               | Explication                                |
++------------------------------------------+--------------------------------------------+
+| org.scala-lang:scala-library             | Bibliothèque standard Scala                |
+|                                          | Permet d'exécuter du code Scala            |
++------------------------------------------+--------------------------------------------+
+| org.scala-lang.modules:scala-xml         | Gestion des fichiers XML en Scala         |
++------------------------------------------+--------------------------------------------+
+| org.scala-lang.modules:scala-parser-...  | Librairie pour parser du texte            |
++------------------------------------------+--------------------------------------------+
+| org.apache.spark:spark-core_2.12         | Noyau de Spark pour Scala 2.12            |
++------------------------------------------+--------------------------------------------+
+| org.apache.spark:spark-sql_2.12          | Bibliothèque SQL de Spark                 |
++------------------------------------------+--------------------------------------------+
+```
+
+---
+
+### **🛠 Explication des Plugins (`plugins`)**
+1. **maven-compiler-plugin**  
+   - Utilisé pour compiler le code Java et Scala.  
+   - Version `3.3` utilisée ici.  
+
+2. **scala-maven-plugin**  
+   - Permet de compiler du **Scala** avec **Maven**.  
+   - Version `3.2.2`.  
+   - Définit que **`compile` et `testCompile`** doivent être exécutés.  
+
+---
+
+### **🎯 Exécutions (`executions`)**
+L’exécution définit **quelles tâches** Maven doit réaliser lors du build :
+- **compile** : Compile le code Scala.  
+- **testCompile** : Compile les tests Scala.  
+
+---
+
+### **⚙ Configuration**
+Dans la section **configuration**, l’argument `-nobootcp` est utilisé pour éviter certains conflits de classpath avec Scala.
+
+---
+
+### **📌 Récapitulatif**
+- **Le projet utilise trois versions de Scala (2.12, 2.11, 2.10)** mais **Scala 2.12 est activé par défaut**.  
+- **Les dépendances Spark et Scala sont chargées dynamiquement selon le profil sélectionné**.  
+- **Les plugins permettent de compiler et exécuter du code Scala avec Maven**.  
+- **L’exécution de Maven compile le code et les tests Scala**.  
+
+
 
