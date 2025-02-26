@@ -1,5 +1,63 @@
 ### **Tutoriel : Exécution d’un Programme Spark en Scala avec Maven et IntelliJ IDEA**
 
+
+
+
+# Table des Matières : Tutoriel Spark en Scala avec Maven et IntelliJ IDEA
+
+### **1. [Prérequis](#1-prérequis)**  
+- Installation et configuration des outils nécessaires.  
+
+### **2. [Création du Projet Maven dans IntelliJ IDEA](#2-création-du-projet-maven-dans-intellij-idea)**  
+- **[Créer un projet Maven](#21-créer-un-projet-maven)**  
+- **[Configuration du fichier `pom.xml`](#22-configuration-du-fichier-pomxml)**  
+- **[Recharger le projet Maven](#23-recharger-le-projet-maven)**  
+
+### **3. [Ajout du Code Scala](#3-ajout-du-code-scala)**  
+- **[Création de la classe `StockProcessor.scala`](#31-création-de-la-classe-stockprocessorscala)**  
+- **[Gestion des fichiers de données avec RDD et DataFrames](#32-gestion-des-fichiers-de-données-avec-rdd-et-dataframes)**  
+
+### **4. [Configuration de l’Exécution](#4-configuration-de-lexécution)**  
+- Paramétrage des options d’exécution dans IntelliJ IDEA.  
+
+### **5. [Exécution du Programme](#5-exécution-du-programme)**  
+- Lancement de l’application Spark.  
+
+### **6. [Résultat Attendu](#6-résultat-attendu)**  
+- Affichage du tableau de données traitées.  
+
+### **7. [Exercice](#7-exercice)**  
+- Manipulation des données et filtrage.  
+
+
+
+## **📂 Annexes**
+### **🔹 [Annexe 1 : Remarques Importantes](#annexe-1--remarques-importantes)**  
+- Versions de Maven, Java et IntelliJ IDEA.  
+
+### **🔹 [Annexe 2 : Arborescence du `pom.xml`](#annexe-2--arborescence-du-pomxml)**  
+- Structure détaillée du fichier `pom.xml`.  
+
+### **🔹 [Annexe 3 : Explication détaillée du fichier `pom.xml`](#annexe-3--explication-détaillée-du-fichier-pomxml)**  
+- Fonctionnement du `pom.xml` et de ses dépendances.  
+
+### **🔹 [Annexe 4 : Explication détaillée du Code Scala](#annexe-4--explication-détaillée-du-code-scala)**  
+- Description des fonctions et des transformations Spark.  
+
+### **🔹 [Annexe 5 : Comparaison `parseStock` vs `parseRDD`](#annexe-5--comparaison-parsestock-vs-parserdd)**  
+- Justification de l’utilisation des RDD avant conversion en DataFrame.  
+
+### **🔹 [Annexe 6 : Workflow du Programme Scala avec Spark](#annexe-6--workflow-du-programme-scala-avec-spark)**  
+- Diagramme et explication du processus de traitement des données.  
+
+---
+
+### 📌 **Liens Rapides**
+- 🔹 [Retour en haut 🔝](#📖-table-des-matières--tutoriel-spark-en-scala-avec-maven-et-intellij-idea)  
+- 🔹 [Aller directement à l’exécution ▶](#5-exécution-du-programme)  
+
+
+
 **Objectif** : 
 
 - Apprendre à configurer un projet Scala avec Maven dans IntelliJ IDEA et exécuter un programme Spark.
