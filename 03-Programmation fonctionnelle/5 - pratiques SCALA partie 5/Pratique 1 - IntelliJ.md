@@ -535,4 +535,305 @@ Dans la section **configuration**, l’argument `-nobootcp` est utilisé pour é
 - **L’exécution de Maven compile le code et les tests Scala**.  
 
 
+# Annexe 3 - Expliaction détaillée du code
+
+
+
+```scala
+// Importation des bibliothèques nécessaires pour utiliser Spark et manipuler les données
+import org.apache.spark.sql.{SparkSession, DataFrame}  // SparkSession est utilisé pour créer une session Spark, DataFrame pour manipuler les données
+import org.apache.spark.rdd.RDD  // RDD (Resilient Distributed Dataset) est une abstraction de données distribuées dans Spark
+import org.apache.spark.sql.Encoders  // Utilisé pour convertir des objets Scala en format compatible avec les DataFrames
+
+// Définition d'une case class `Stock` qui représente un enregistrement d'action boursière
+case class Stock(
+                  dt: String,           // Date de l'enregistrement
+                  openprice: Double,    // Prix d'ouverture
+                  highprice: Double,    // Prix le plus haut
+                  lowprice: Double,     // Prix le plus bas
+                  closeprice: Double,   // Prix de clôture
+                  volume: Double,       // Volume échangé
+                  adjcloseprice: Double // Prix ajusté de clôture
+                )
+
+// Définition d'un objet `StockProcessor` contenant les méthodes pour analyser et charger les données
+object StockProcessor {
+
+  // Fonction qui prend une ligne CSV (sous forme de String) et la convertit en objet `Stock`
+  def parseStock(str: String): Option[Stock] = {
+    val line = str.split(",")  // Sépare la ligne en utilisant la virgule comme séparateur
+
+    try {
+      Some(Stock(   // Essaie de créer un objet Stock avec les valeurs extraites
+        line(0),            // Date (dt)
+        line(1).toDouble,   // Prix d'ouverture (openprice)
+        line(2).toDouble,   // Prix le plus haut (highprice)
+        line(3).toDouble,   // Prix le plus bas (lowprice)
+        line(4).toDouble,   // Prix de clôture (closeprice)
+        line(5).toDouble,   // Volume échangé (volume)
+        line(6).toDouble    // Prix ajusté de clôture (adjcloseprice)
+      ))
+    } catch {
+      case e: Exception =>  // En cas d'erreur lors de la conversion
+        println(s"Erreur de parsing pour la ligne : $str -> ${e.getMessage}") // Affiche un message d'erreur
+        None  // Retourne `None` pour ignorer cette ligne incorrecte
+    }
+  }
+
+  // Fonction qui prend un RDD[String] et le convertit en un RDD[Stock]
+  def parseRDD(rdd: RDD[String]): RDD[Stock] = {
+    val header = rdd.first() // Récupération de la première ligne du fichier (l'en-tête)
+    rdd
+      .filter(_ != header) // Supprime la première ligne (l'en-tête) pour ne pas la traiter
+      .flatMap(parseStock) // Applique la fonction `parseStock` à chaque ligne et ignore les erreurs
+      .cache() // Met en cache le RDD pour améliorer les performances
+  }
+
+  def main(args: Array[String]): Unit = {
+    // Création de la session Spark (point d'entrée pour utiliser Spark)
+    val spark = SparkSession.builder()
+      .appName("Stock Analysis") // Nom de l'application Spark
+      .master("local[*]") // Mode local (utilise tous les cœurs disponibles de la machine locale)
+      .getOrCreate() // Crée ou récupère une session Spark existante
+
+    import spark.implicits._ // Importation implicite pour convertir un RDD en DataFrame
+
+    // Charger le fichier CSV et le transformer en DataFrame
+    val stocksAAPLDF: DataFrame = parseRDD(spark.sparkContext.textFile("C:/Users/rehou/Downloads/AAPL.csv"))
+      .toDF() // Conversion du RDD[Stock] en DataFrame
+      .cache() // Met en cache les données pour éviter de relire le fichier à chaque requête
+
+    // Affichage des premières lignes du DataFrame sous forme de tableau
+    stocksAAPLDF.show()
+  }
+}
+```
+
+---
+
+### **Explication Générale du Code**
+1. **Importation des bibliothèques** :  
+   - SparkSession est utilisé pour créer une session Spark.
+   - DataFrame est une abstraction de Spark SQL pour manipuler les données tabulaires.
+   - RDD (Resilient Distributed Dataset) est utilisé pour la gestion des données en mémoire et leur traitement distribué.
+
+2. **Définition de la case class `Stock`** :  
+   - Permet de structurer les données en objets Scala.
+   - Facilite leur manipulation et leur conversion en DataFrame.
+
+3. **Fonction `parseStock(str: String)`** :  
+   - Convertit une ligne de texte CSV en objet `Stock`.
+   - Gère les erreurs en cas de format incorrect.
+
+4. **Fonction `parseRDD(rdd: RDD[String])`** :  
+   - Lit un fichier CSV sous forme de `RDD[String]`.
+   - Supprime l'en-tête du fichier.
+   - Convertit chaque ligne en objet `Stock`.
+   - Met en cache les données pour améliorer les performances.
+
+5. **Fonction `main(args: Array[String])`** :  
+   - Crée une session Spark.
+   - Charge les données d'un fichier CSV.
+   - Convertit le fichier en DataFrame.
+   - Affiche les premières lignes du DataFrame.
+
+---
+
+### ** Points Clés à Retenir**
+- **RDD vs DataFrame** :  
+  - Un **RDD** est une collection distribuée d'objets Scala.
+  - Un **DataFrame** est une table optimisée pour Spark SQL (plus performant que les RDDs).
+
+- **`cache()`** :  
+  - Évite la relecture des données depuis le fichier en stockant les résultats en mémoire.
+
+- **Utilisation de `Option[Stock]`** :  
+  - Permet de gérer les erreurs de parsing en évitant d'inclure des lignes corrompues dans les résultats.
+
+# Annexe 4 -  parseStock vs parseRDD
+
+Nous ne sommes pas obligés de transformer en RDD avant de créer un DataFrame dans Spark. On le fait ici pour contrôler manuellement le parsing des données avant de les convertir en DataFrame.
+
+
+Non, nous ne sommes **pas obligés** de transformer en **RDD** avant de créer un **DataFrame** dans Spark. On le fait ici pour **contrôler manuellement le parsing des données** avant de les convertir en **DataFrame**.
+
+
+
+## ** Explication du Workflow**
+L’objectif est de **charger un fichier CSV** en Spark et de le convertir en un format utilisable pour l’analyse des données.
+
+### ** Étapes du Workflow**
+1. **Lecture du fichier CSV brut** :  
+   - Spark charge les données sous forme de **RDD[String]** (chaque ligne est une chaîne de caractères).
+   
+2. **Traitement des erreurs via `parseStock(str: String)`** :  
+   - Convertit une ligne CSV en un objet `Stock`.  
+   - Ignore les lignes mal formatées grâce à `Option[Stock]`.  
+
+3. **Transformation complète avec `parseRDD(rdd: RDD[String])`** :  
+   - Applique `parseStock` sur tout le fichier.
+   - Supprime l’en-tête du fichier.
+   - Filtre les erreurs.
+   - Convertit ensuite en DataFrame.
+
+---
+
+## ** Pourquoi `parseStock(str: String)` ?**
+- **Problème** : Quand on charge un CSV, les données sont brutes (du texte).  
+- **Solution** : `parseStock` transforme une ligne CSV (`String`) en **objet structuré `Stock`**.
+- **Gestion d’erreurs** :  
+  - Si une ligne a **des valeurs invalides** (`"abc"` au lieu de `12.34`), elle est ignorée **au lieu de faire planter Spark**.
+  - Cela évite d'avoir **des erreurs de parsing massives** si le fichier contient des données incorrectes.
+
+### ** Exemple d’Utilisation**
+```scala
+val ligne = "2024-02-25,100.5,105.0,98.3,104.2,200000,104.2"
+val stock = parseStock(ligne)
+println(stock)  
+// Résultat : Some(Stock(2024-02-25,100.5,105.0,98.3,104.2,200000,104.2))
+```
+Mais si on passe une ligne invalide :
+```scala
+val ligneErronee = "2024-02-25,100.5,abc,98.3,104.2,200000,104.2"
+val stockErrone = parseStock(ligneErronee)
+println(stockErrone)  
+// Résultat : None (et affiche un message d'erreur)
+```
+Cela **évite que Spark plante** à cause d'une seule erreur.
+
+---
+
+## ** Pourquoi `parseRDD(rdd: RDD[String])` ?**
+- **Problème** : Spark charge un CSV comme un **RDD de Strings**.  
+- **Solution** : `parseRDD` applique `parseStock` **à toutes les lignes du fichier**.
+- **Gestion de l’en-tête** :  
+  - Supprime la **première ligne** qui contient `"Date,Open,High,Low,Close,Volume,AdjClose"` (inutile dans le traitement).
+- **Améliore les performances** :  
+  - **RDD caché (`.cache()`)** :  
+    - Stocke les données en mémoire pour éviter **de relire le fichier plusieurs fois**.
+
+### ** Exemple d’Utilisation**
+```scala
+val rddBrut = spark.sparkContext.parallelize(Seq(
+  "Date,Open,High,Low,Close,Volume,AdjClose",  // En-tête à supprimer
+  "2024-02-25,100.5,105.0,98.3,104.2,200000,104.2",
+  "2024-02-26,102.0,106.5,100.0,105.5,180000,105.5",
+  "2024-02-27,abc,107.0,101.0,106.0,210000,106.0"  // Erreur ici !
+))
+
+val rddStock = parseRDD(rddBrut)
+rddStock.collect().foreach(println)
+```
+**Sortie :**
+```
+Stock(2024-02-25,100.5,105.0,98.3,104.2,200000,104.2)
+Stock(2024-02-26,102.0,106.5,100.0,105.5,180000,105.5)
+Erreur de parsing pour la ligne : 2024-02-27,abc,107.0,101.0,106.0,210000,106.0 -> For input string: "abc"
+```
+👉 La **ligne invalide est ignorée** sans faire crasher Spark !
+
+---
+
+## ** Conclusion : Pourquoi ce Workflow ?**
+| Étape                 | Pourquoi ?                                                   |
+|----------------------|-----------------------------------------------------------|
+| **1. Lire un fichier CSV**  | Spark traite les lignes comme du texte brut (`RDD[String]`). |
+| **2. `parseStock`**         | Transforme **chaque ligne** en un objet `Stock` structuré.  |
+| **3. `parseRDD`**           | - Supprime l’en-tête <br>- Gère les erreurs <br>- Transforme en `RDD[Stock]` |
+| **4. Convertir en DataFrame** | Permet d’utiliser Spark SQL (`toDF()`).                           |
+
+👉 **On transforme en RDD pour gérer les erreurs et structurer les données avant de les convertir en DataFrame !** 🚀
+
+
+---
+# Annexe 5 -  Workflow du Programme Scala avec Spark
+---
+
+
+```
++---------------------------+
+|   Définition de la classe |
+|        Stock.scala        |
++---------------------------+
+         ⬇ (Structure de données)
++------------------------------------------------------+
+| case class Stock(dt, openprice, highprice, lowprice,|
+|                 closeprice, volume, adjcloseprice)  |
+| - Représente une ligne du fichier CSV              |
+| - Facilite la conversion en DataFrame               |
++------------------------------------------------------+
+         ⬇ (Transformation du fichier CSV en RDD)
++-----------------------------------------------+
+|  Lecture du fichier CSV brut en RDD[String]  |
+|  → Chaque ligne est une String               |
+|                                               |
+|  Exemple:                                     |
+|  "Date,Open,High,Low,Close,Volume,AdjClose"  |  <- En-tête (à ignorer)
+|  "2024-02-25,100.5,105.0,98.3,104.2,200000,104.2" |
+|  "2024-02-26,102.0,106.5,100.0,105.5,180000,105.5" |
++-----------------------------------------------+
+         ⬇ (Nettoyage et Parsing des données)
++-----------------------------------------------+
+|  Fonction parseStock(str: String)            |
+|  → Transforme une ligne CSV en objet Stock   |
+|  → Gère les erreurs (ignore les lignes invalides) |
+|                                               |
+|  Exemple :                                    |
+|  Entrée : "2024-02-25,100.5,105.0,98.3,104.2,200000,104.2"  |
+|  Sortie : Stock(2024-02-25,100.5,105.0,98.3,104.2,200000,104.2) |
++-----------------------------------------------+
+         ⬇ (Application du parsing à tout le fichier)
++-----------------------------------------------+
+|  Fonction parseRDD(rdd: RDD[String])         |
+|  → Supprime l'en-tête du fichier CSV         |
+|  → Applique parseStock à toutes les lignes   |
+|  → Ignore les lignes incorrectes             |
+|  → Renvoie un RDD[Stock]                     |
+|                                               |
+|  Exemple :                                    |
+|  Entrée : RDD[String] (chaque ligne du CSV)  |
+|  Sortie : RDD[Stock] (objets Stock bien structurés) |
++-----------------------------------------------+
+         ⬇ (Conversion en DataFrame)
++-----------------------------------------------+
+|  Transformation du RDD[Stock] en DataFrame   |
+|  → Permet d'utiliser Spark SQL               |
+|  → Optimisé pour les requêtes rapides        |
+|                                               |
+|  Exemple :                                    |
+|  Entrée : RDD[Stock]                          |
+|  Sortie : DataFrame                           |
+|                                               |
+|  +----------+---------+---------+--------+   |
+|  |    dt    |openprice|highprice|lowprice|   |
+|  +----------+---------+---------+--------+   |
+|  |2024-02-25|  100.5  |  105.0  |  98.3  |   |
+|  |2024-02-26|  102.0  |  106.5  | 100.0  |   |
+|  +----------+---------+---------+--------+   |
++-----------------------------------------------+
+         ⬇ (Affichage des résultats)
++-----------------------------------------------+
+|  stocksAAPLDF.show()                         |
+|  → Affiche les premières lignes du DataFrame |
++-----------------------------------------------+
+```
+
+---
+
+### **🛠 Résumé en Étapes**
+| **Étape** | **Explication** |
+|-----------|----------------|
+| **1. Définition de `Stock`** | Crée une classe Scala qui structure les données |
+| **2. Lecture du CSV** | Charge un fichier sous forme de texte brut (`RDD[String]`) |
+| **3. `parseStock(str: String)`** | Transforme une ligne en objet `Stock` et gère les erreurs |
+| **4. `parseRDD(rdd: RDD[String])`** | Supprime l’en-tête et applique `parseStock` à tout le fichier |
+| **5. Conversion en DataFrame** | Convertit `RDD[Stock]` en `DataFrame` optimisé |
+| **6. Affichage des données** | Affiche les 20 premières lignes avec `show()` |
+
+---
+
+### **Pourquoi ce Workflow ?**
+- **RDD permet de contrôler les erreurs** avant la conversion en DataFrame.
+- **Le parsing manuel** (`parseStock`) évite que Spark plante si une ligne est invalide.
+- **Les DataFrames sont plus rapides et optimisés pour Spark SQL**.
 
