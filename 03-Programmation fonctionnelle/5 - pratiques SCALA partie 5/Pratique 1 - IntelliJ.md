@@ -318,3 +318,60 @@ object StockProcessor {
 
 
 
+# Annexe 1 - arborescence de notre pom.xml
+
+*Cette arborescence dans notre annexe permet de visualiser clairement la hiérarchie de votre fichier `pom.xml`, y compris les dépendances, les propriétés, les profils Maven et les plugins utilisés.*
+
+```
+project
+├── modelVersion: 4.0.0
+├── groupId: sample
+├── artifactId: scala-module-dependency-sample
+├── version: 1.0-SNAPSHOT
+├── properties
+│   ├── encoding: UTF-8
+├── profiles
+│   ├── profile (id: scala-2.12)
+│   │   ├── activation
+│   │   │   ├── activeByDefault: true
+│   │   ├── properties
+│   │   │   ├── scala.version: 2.12.7
+│   │   │   ├── scala.compat.version: 2.12
+│   │   ├── dependencies
+│   │   │   ├── dependency (org.scala-lang:scala-library:${scala.version})
+│   │   │   ├── dependency (org.scala-lang.modules:scala-xml_${scala.compat.version}:1.1.1)
+│   │   │   ├── dependency (org.scala-lang.modules:scala-parser-combinators_${scala.compat.version}:1.1.1)
+│   │   │   ├── dependency (org.scala-lang.modules:scala-swing_${scala.compat.version}:2.0.3)
+│   │   │   ├── dependency (org.apache.spark:spark-core_2.12:3.3.0)
+│   │   │   ├── dependency (org.apache.spark:spark-sql_2.12:3.3.0)
+│   ├── profile (id: scala-2.11)
+│   │   ├── properties
+│   │   │   ├── scala.version: 2.11.12
+│   │   │   ├── scala.compat.version: 2.11
+│   │   ├── dependencies
+│   │   │   ├── dependency (org.scala-lang:scala-library:${scala.version})
+│   │   │   ├── dependency (org.scala-lang.modules:scala-xml_${scala.compat.version}:1.1.1)
+│   │   │   ├── dependency (org.scala-lang.modules:scala-parser-combinators_${scala.compat.version}:1.1.1)
+│   ├── profile (id: scala-2.10)
+│   │   ├── properties
+│   │   │   ├── scala.version: 2.10.7
+│   │   │   ├── scala.compat.version: 2.10
+│   │   ├── dependencies
+│   │   │   ├── dependency (org.scala-lang:scala-library:${scala.version})
+├── build
+│   ├── sourceDirectory: src/main/scala
+│   ├── testSourceDirectory: src/test/scala
+│   ├── plugins
+│   │   ├── plugin (org.apache.maven.plugins:maven-compiler-plugin:3.3)
+│   │   ├── plugin (net.alchim31.maven:scala-maven-plugin:3.2.2)
+│   │   │   ├── executions
+│   │   │   │   ├── execution
+│   │   │   │   │   ├── goals
+│   │   │   │   │   │   ├── goal: compile
+│   │   │   │   │   │   ├── goal: testCompile
+│   │   │   ├── configuration
+│   │   │   │   ├── args
+│   │   │   │   │   ├── arg: -nobootcp
+```
+
+
