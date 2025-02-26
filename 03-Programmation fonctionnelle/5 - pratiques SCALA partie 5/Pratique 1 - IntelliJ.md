@@ -803,8 +803,12 @@ Erreur de parsing pour la ligne : 2024-02-27,abc,107.0,101.0,106.0,210000,106.0 
 👉 **On transforme en RDD pour gérer les erreurs et structurer les données avant de les convertir en DataFrame !** 🚀
 
 
+
+<a name="annexe-6--workflow-du-programme-scala-avec-spark"></a>
+
+
 ---
-# Annexe 5 -  Workflow du Programme Scala avec Spark
+# Annexe 6 -  Workflow du Programme Scala avec Spark
 ---
 
 
