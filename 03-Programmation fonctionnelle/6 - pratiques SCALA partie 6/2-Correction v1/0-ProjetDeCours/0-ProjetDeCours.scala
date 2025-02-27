@@ -135,7 +135,7 @@ object HelloWorldBigDataStreaming {
     // Syntaxe : [val|var] nom_tableau = new Array[type] (nbre_elements)
     // eg : tableau immutable de chaîne de caractères
     val a = new Array[String] (4)
-    a(0) = "Juvenal"
+    a(0) = "Doe"
     a(1) = "John"
 
     for (i <- 0 to 3) {
