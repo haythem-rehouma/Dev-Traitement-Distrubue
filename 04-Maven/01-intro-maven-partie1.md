@@ -168,6 +168,26 @@ Fichier :
 </project>
 ```
 
+
+
+
+```
+project (xmlns="http://maven.apache.org/POM/4.0.0")
+├── modelVersion: 4.0.0
+├── groupId: com.example
+├── artifactId: calculator
+├── version: 1.0-SNAPSHOT
+├── properties
+│   ├── maven.compiler.source: 1.8
+│   └── maven.compiler.target: 1.8
+└── dependencies
+    └── dependency
+        ├── groupId: junit
+        ├── artifactId: junit
+        ├── version: 4.12
+        └── scope: test
+```
+
 ---
 
 ### **12. Exécution des commandes Maven**
