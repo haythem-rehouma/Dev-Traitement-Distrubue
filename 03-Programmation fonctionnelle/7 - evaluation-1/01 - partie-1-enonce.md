@@ -7,8 +7,14 @@
 - **Durée suggérée :** 30 minutes.  
 - **Répondez avec précision** et **justifiez vos choix** lorsque possible.  
 
-### Documentation : 
-- https://github.com/haythem-rehouma/Dev-Traitement-Distrubue/tree/main/03-Programmation%20fonctionnelle/2%20-%20pratiques%20SCALA%20partie%202
+
+
+## 📖 Documentation  
+
+Consultez la documentation complète ici :  
+🔗 [Programmation Fonctionnelle - Pratiques SCALA (Partie 2)](https://github.com/haythem-rehouma/Dev-Traitement-Distrubue/tree/main/03-Programmation%20fonctionnelle/2%20-%20pratiques%20SCALA%20partie%202)  
+
+
 
 ---
 
