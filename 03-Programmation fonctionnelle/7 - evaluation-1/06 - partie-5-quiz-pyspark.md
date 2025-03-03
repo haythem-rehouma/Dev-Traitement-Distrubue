@@ -154,14 +154,6 @@ b) `df.where(df.rating_count > 100)`
 c) `df.filter("rating_count > 100")`  
 d) `df.select(df.rating_count > 100)`  
 
-
-### **Suite du Quiz : PySpark et Manipulation de Données avec DataFrames**  
-
-**Instructions :**  
-- Ce quiz contient **40 questions** basées sur le code PySpark ci-dessus.  
-- Chaque question est à **choix unique**.  
-- Le quiz teste la **compréhension des fonctions utilisées**, leur **effet sur les DataFrames** et leur **utilisation correcte**.
-
 ---
 
 ## **Section 4 : Fenêtrage et Groupement Avancé (Q24 - Q30)**  
