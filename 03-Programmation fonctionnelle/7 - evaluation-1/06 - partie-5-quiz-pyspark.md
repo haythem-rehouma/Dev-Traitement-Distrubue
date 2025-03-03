@@ -153,3 +153,135 @@ a) `df.filter(df.count() > 100)`
 b) `df.where(df.rating_count > 100)`  
 c) `df.filter("rating_count > 100")`  
 d) `df.select(df.rating_count > 100)`  
+
+
+### **Suite du Quiz : PySpark et Manipulation de Données avec DataFrames**  
+
+**Instructions :**  
+- Ce quiz contient **40 questions** basées sur le code PySpark ci-dessus.  
+- Chaque question est à **choix unique**.  
+- Le quiz teste la **compréhension des fonctions utilisées**, leur **effet sur les DataFrames** et leur **utilisation correcte**.
+
+---
+
+## **Section 4 : Fenêtrage et Groupement Avancé (Q24 - Q30)**  
+
+**Q24.** Quelle fonction permet d’obtenir le rang d’une ligne dans une fenêtre définie par une colonne spécifique ?  
+a) `rank().over(Window.partitionBy("col"))`  
+b) `row_number().over(Window.partitionBy("col"))`  
+c) `dense_rank().over(Window.partitionBy("col"))`  
+d) `ntile().over(Window.partitionBy("col"))`  
+
+**Q25.** Quelle est la principale différence entre `rank()` et `dense_rank()` ?  
+a) `rank()` saute les valeurs en cas d’égalité, `dense_rank()` ne saute pas  
+b) `dense_rank()` saute les valeurs en cas d’égalité, `rank()` ne saute pas  
+c) `rank()` fonctionne seulement sur les dates  
+d) `dense_rank()` ne fonctionne que sur les nombres  
+
+**Q26.** Comment calculer une moyenne mobile sur une colonne `rating` en utilisant une fenêtre de 7 jours ?  
+a) `df.withColumn("moving_avg", avg("rating").over(Window.rowsBetween(-6, 0)))`  
+b) `df.withColumn("moving_avg", avg("rating").over(Window.rangeBetween(-6, 0)))`  
+c) `df.withColumn("moving_avg", moving_avg("rating", 7))`  
+d) `df.withColumn("moving_avg", Window.avg("rating").partitionBy(7))`  
+
+**Q27.** Quelle fonction permet de récupérer la valeur maximale d’une colonne dans une fenêtre définie par `movieId` ?  
+a) `df.withColumn("max_value", max("rating").over(Window.partitionBy("movieId")))`  
+b) `df.withColumn("max_value", Window.max("rating").groupBy("movieId"))`  
+c) `df.groupBy("movieId").max("rating")`  
+d) `df.withColumn("max_value", ranking("rating").over(Window.partitionBy("movieId")))`  
+
+**Q28.** Comment créer une fenêtre de partition basée sur `userId` et triée par `rating_date` ?  
+a) `Window.partitionBy("userId").orderBy("rating_date")`  
+b) `Window.groupBy("userId").sortBy("rating_date")`  
+c) `Window.partitionBy("userId").sort("rating_date")`  
+d) `Window.over("userId", "rating_date")`  
+
+**Q29.** Quelle fonction permet de créer une fenêtre mobile pour calculer un total cumulatif sur `rating` ?  
+a) `df.withColumn("cumsum", sum("rating").over(Window.orderBy("rating_date").rowsBetween(Window.unboundedPreceding, 0)))`  
+b) `df.withColumn("cumsum", sum("rating").cumulative(Window.partitionBy("rating_date")))`  
+c) `df.withColumn("cumsum", rolling_sum("rating", Window.partitionBy("rating_date")))`  
+d) `df.withColumn("cumsum", total("rating").over(Window.partitionBy("rating_date")))`  
+
+**Q30.** Quel est l’effet d’une clause `Window.partitionBy("userId")` dans PySpark ?  
+a) Il regroupe les données en sous-ensembles basés sur `userId`, permettant l’application de fonctions analytiques  
+b) Il divise les DataFrames en plusieurs fichiers stockés séparément  
+c) Il réorganise les lignes en fonction de `userId`  
+d) Il applique uniquement des tris sur `userId` sans partitionnement réel  
+
+---
+
+## **Section 5 : Requêtes SQL dans PySpark (Q31 - Q35)**  
+
+**Q31.** Quelle commande permet d’exécuter une requête SQL sur un DataFrame après l’avoir enregistré comme vue temporaire ?  
+a) `spark.sql("SELECT * FROM movies_csv")`  
+b) `df.sql("SELECT * FROM movies_csv")`  
+c) `movies_csv.run("SELECT *")`  
+d) `execute("SELECT * FROM movies_csv")`  
+
+**Q32.** Comment transformer une colonne contenant une date en type `DATE` en SQL sur une vue temporaire ?  
+a) `SELECT TO_DATE(date_column) FROM table`  
+b) `SELECT CAST(date_column AS DATE) FROM table`  
+c) `SELECT FORMAT(date_column, "yyyy-MM-dd") FROM table`  
+d) `SELECT date_format(date_column, "DATE") FROM table`  
+
+**Q33.** Quel est l’effet de `spark.conf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")` ?  
+a) Active la compatibilité avec d’anciennes versions de gestion des dates dans Spark  
+b) Convertit automatiquement les timestamps en format UTC  
+c) Force Spark à refuser toute conversion de date incorrecte  
+d) Active un mode strict empêchant les formats de dates non conformes  
+
+**Q34.** Comment exécuter une requête SQL qui calcule la moyenne des `rating` par `movieId` ?  
+a) `spark.sql("SELECT movieId, AVG(rating) FROM movies_csv GROUP BY movieId")`  
+b) `spark.sql("SELECT movieId, SUM(rating) FROM movies_csv GROUP BY movieId")`  
+c) `df.select("movieId", "AVG(rating)").groupBy("movieId")`  
+d) `df.runQuery("SELECT AVG(rating) FROM movies_csv GROUP BY movieId")`  
+
+**Q35.** Comment convertir une chaîne `timestamp` en format date directement via une requête SQL ?  
+a) `SELECT TO_DATE(timestamp_column) FROM table`  
+b) `SELECT FROM_UNIXTIME(timestamp_column) FROM table`  
+c) `SELECT TO_TIMESTAMP(timestamp_column) FROM table`  
+d) `SELECT CAST(timestamp_column AS DATE) FROM table`  
+
+---
+
+## **Section 6 : Transformations et Optimisation (Q36 - Q40)**  
+
+**Q36.** Quelle fonction permet d’afficher le schéma d’un DataFrame ?  
+a) `df.describe()`  
+b) `df.printSchema()`  
+c) `df.showSchema()`  
+d) `df.schema()`  
+
+**Q37.** Comment vérifier le type d’une colonne spécifique dans un DataFrame ?  
+a) `df.schema["col_name"]`  
+b) `df.printSchema("col_name")`  
+c) `df.dtypes["col_name"]`  
+d) `df.schema.fields[df.schema.fieldNames().index("col_name")].dataType`  
+
+**Q38.** Quelle fonction permet de supprimer les valeurs nulles d’un DataFrame ?  
+a) `df.dropna()`  
+b) `df.filter(df.isNotNull())`  
+c) `df.removeNulls()`  
+d) `df.cleanData()`  
+
+**Q39.** Comment remplir les valeurs manquantes dans une colonne `rating` avec la moyenne des valeurs existantes ?  
+a) `df.fillna(df.agg({"rating": "avg"}).collect()[0][0], "rating")`  
+b) `df.fillna("rating", df.mean("rating"))`  
+c) `df.replaceNulls("rating", "mean")`  
+d) `df.fillna(df.avg("rating"))`  
+
+**Q40.** Quelle méthode permet d’optimiser les performances en **cache** un DataFrame ?  
+a) `df.cache()`  
+b) `df.persist(StorageLevel.MEMORY_AND_DISK)`  
+c) `df.memoryCache()`  
+d) `df.optimizeCache()`  
+
+---
+
+## **Fin du Quiz** 🎯  
+
+Ce quiz vous permet de tester vos **compétences avancées** sur **PySpark**, en particulier sur :  
+- **Chargement et transformation des données**  
+- **Agrégation et jointures**  
+- **Fenêtrage et requêtes SQL**  
+- **Optimisation et gestion des données**  
