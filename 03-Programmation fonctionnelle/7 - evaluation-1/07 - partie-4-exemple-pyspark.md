@@ -1,4 +1,4 @@
-Voici une **table complète** contenant chaque portion de code (ou « bout de code ») numérotée, accompagnée d’une **explication générale** de ce qu’elle fait. L’objectif est d’offrir une vue d’ensemble claire et structurée pour chacun des 40 segments identifiés.
+# Tableau récapitulatif
 
 | **N°** | **Code** | **Explication** |
 |-------:|:--------:|:---------------|
