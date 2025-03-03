@@ -61,7 +61,7 @@ Les microservices peuvent communiquer via :
 
 Le **stockage par blocs** découpe les données en fragments distribués sur plusieurs serveurs, assurant **tolérance aux pannes et haute disponibilité**.  
 
-🔹 **Exemples de systèmes de stockage distribués :**  
+**Exemples de systèmes de stockage distribués :**  
 
 | **Système** | **Avantages** | **Inconvénients** |
 |------------|-------------|-----------------|
