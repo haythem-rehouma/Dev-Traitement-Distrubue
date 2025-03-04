@@ -1,147 +1,134 @@
-# **Correction du Quiz – Distribue-1 (30 points)**  
+# **Correction de l’Examen Mi-Session (Partie 2) – Systèmes Distribués et Big Data**  
 
-### **Scala et Programmation Fonctionnelle**  
-**Barème :** 2 points par question | **Total : 30 points**  
-**Instructions :** Une seule réponse correcte par question.  
 
----
+# **QUESTION 1 – Architecture de Systèmes Distribués**  
+### **Théorème CAP et compromis dans les bases de données distribuées**  
 
-### **1. Quel est le résultat de l'exécution du code suivant ?**  
-```scala
-val list = List(1, 2, 3, 4, 5)  
-list.filter(_ % 2 == 0).map(_ * 2)
-```  
-**Réponse :** `List(4, 8)`  
+Le **théorème CAP**, formulé par Eric Brewer, affirme qu’un système distribué ne peut garantir simultanément **trois propriétés** :  
+1. **Cohérence (Consistency, C)** : Tous les nœuds du système voient les mêmes données à un instant donné.  
+2. **Disponibilité (Availability, A)** : Chaque requête reçoit une réponse, même en cas de panne de certains nœuds.  
+3. **Tolérance au Partage (Partition Tolerance, P)** : Le système continue à fonctionner même si la communication entre certains nœuds est interrompue.  
 
-**Explication :**  
-- `filter(_ % 2 == 0)` garde les nombres pairs `[2, 4]`.  
-- `map(_ * 2)` multiplie chaque élément par 2, donnant `[4, 8]`.  
+Un système distribué ne peut garantir **au maximum que deux** de ces propriétés en même temps. Cela entraîne des **compromis CAP**, qui influencent la conception des bases de données distribuées :  
 
----
+| **Type de base de données** | **Compromis** | **Exemple** |
+|-----------------------------|--------------|-------------|
+| **CP (Cohérence + Tolérance au Partage)** | Sacrifie la disponibilité. | **HBase, MongoDB (mode strict), Redis (mode cluster)** |
+| **AP (Disponibilité + Tolérance au Partage)** | Sacrifie la cohérence stricte. | **Cassandra, DynamoDB, CouchDB** |
+| **CA (Cohérence + Disponibilité)** | Impossible dans un réseau partitionné. | **Systèmes centralisés (ex: PostgreSQL sur un seul serveur)** |
 
-### **2. Quelle est la particularité des objets `case` en Scala ?**  
-**Réponse :** `Ils supportent automatiquement le pattern matching.`  
+### **Exemple concret : Apache Cassandra (AP)**
+Apache Cassandra est conçu pour des applications nécessitant **une disponibilité élevée et une tolérance aux pannes réseau**. Il privilégie la **disponibilité** en acceptant que les données puissent être temporairement inconsistantes entre les nœuds. La cohérence est ensuite assurée via un mécanisme de **réplication asynchrone et d'anti-entropy** (réconciliation des données).  
 
-**Explication :**  
-- Les `case class` facilitent le pattern matching en générant des méthodes `apply`, `unapply`, `equals`, `hashCode` et `toString` automatiquement.  
 
----
 
-### **3. Comment définir une méthode générique en Scala ?**  
-**Réponse :** `def methodName[T](param: T): T = {...}`  
+# **QUESTION 2 – Microservices et Communication**  
+### **Avantages et défis de l’architecture microservices**  
 
-**Explication :**  
-- `[T]` définit un type générique.  
+L’architecture microservices décompose une application en **services indépendants** qui communiquent via des API.  
 
----
+✅ **Avantages :**  
+- **Scalabilité** : Chaque service peut être dimensionné indépendamment.  
+- **Déploiement rapide** : Mise à jour d’un service sans impacter les autres.  
+- **Flexibilité technologique** : Chaque service peut utiliser un langage ou un framework différent.  
+- **Résilience** : Une panne d’un service n’entraîne pas l’arrêt total du système.  
 
-### **4. Concernant les traits en Scala, lequel est vrai ?**  
-**Réponse :** `Un trait peut contenir des méthodes concrètes et abstraites.`  
+❌ **Inconvénients :**  
+- **Complexité** : Gestion accrue des interconnexions et des versions.  
+- **Latence réseau** : Chaque appel inter-service ajoute un délai.  
+- **Monitoring difficile** : Multiplication des logs et des erreurs à surveiller.  
+- **Gestion des transactions** : Difficile d’assurer une cohérence ACID sur plusieurs services.  
 
-**Explication :**  
-- Un `trait` peut définir des méthodes avec ou sans implémentation, contrairement aux interfaces Java classiques.  
+### **Moyens de communication entre microservices**  
 
----
+Les microservices peuvent communiquer via :  
+1. **API REST (HTTP/HTTPS)** – Simple, mais forte latence.  
+2. **gRPC (Remote Procedure Call)** – Rapide et optimisé pour la performance.  
+3. **Message Brokers (Kafka, RabbitMQ, AWS SQS)** – Utilisé pour une architecture event-driven.  
+4. **GraphQL** – Permet d’interroger plusieurs services via une seule requête.  
 
-### **5. Quelle est la sortie du code suivant ?**  
-```scala
-def multiply(x: Int, y: Int): Int = x * y  
-println(multiply(2, 3))
-```  
-**Réponse :** `6`  
+### **Stratégies pour gérer les échecs de communication**  
 
-**Explication :**  
-- L'appel `multiply(2, 3)` retourne `2 × 3 = 6`.  
+1. **Timeouts et Retries** : Limiter le temps d’attente et retenter en cas d’échec.  
+2. **Circuit Breaker (ex: Resilience4j, Hystrix)** : Stopper les appels vers un service en panne.  
+3. **Fallbacks (Plan B)** : Fournir une réponse de secours en cas d’échec.  
+4. **Eventual Consistency** : Synchronisation asynchrone des services avec des événements.  
 
----
 
-### **6. Meilleure façon d’itérer sur une liste et appliquer une fonction ?**  
-**Réponse :** `list.foreach(function)`  
 
-**Explication :**  
-- `foreach` applique une fonction à chaque élément **sans créer une nouvelle collection**, contrairement à `map`.  
+# **QUESTION 3 – Solutions de Stockage et de Traitement en Environnements Distribués**  
+### **(A) Stockage distribué**  
 
----
+Le **stockage par blocs** découpe les données en fragments distribués sur plusieurs serveurs, assurant **tolérance aux pannes et haute disponibilité**.  
 
-### **7. Différence entre `val` et `var` en Scala ?**  
-**Réponse :** `val déclare une variable immuable, tandis que var déclare une variable mutable.`  
+**Exemples de systèmes de stockage distribués :**  
 
-**Explication :**  
-- `val` crée une constante (**immuable**), tandis que `var` crée une variable modifiable (**mutable**).  
-
----
-
-### **8. Qu'est-ce qu'un `for-comprehension` en Scala ?**  
-**Réponse :** `Une boucle for spéciale qui peut retourner un résultat.`  
-
-**Explication :**  
-- Contrairement aux `for` classiques, il retourne une **collection de valeurs** au lieu d'exécuter simplement du code.  
+| **Système** | **Avantages** | **Inconvénients** |
+|------------|-------------|-----------------|
+| **HDFS (Hadoop Distributed File System)** | Réplication des données, tolérant aux pannes | Faible performance en accès aléatoire |
+| **Ceph** | Accès objet, bloc et fichier, évolutivité automatique | Configuration complexe |
 
 ---
 
-### **9. Rôle du mot-clé `yield` dans un `for` ?**  
-**Réponse :** `Retourne une valeur à partir d'une boucle, créant une collection des résultats.`  
+### **(B) Traitement des données distribuées**  
 
-**Explication :**  
-- `yield` permet de construire une nouvelle collection en appliquant une transformation sur chaque élément d’une boucle `for`.  
+**Comparaison de frameworks :**  
 
----
+| **Framework** | **Architecture** | **Avantages** | **Inconvénients** |
+|--------------|----------------|--------------|----------------|
+| **Hadoop MapReduce** | Basé sur fichiers (HDFS) | Fiable pour gros volumes | Latence élevée |
+| **Apache Spark** | In-memory (RDD) | Très rapide, support du streaming | Gourmand en RAM |
 
-### **10. Le pattern matching en Scala est similaire à ?**  
-**Réponse :** `Les switch statements en C.`  
 
-**Explication :**  
-- Il fonctionne comme `switch`, mais avec des capacités avancées, comme la décomposition d’objets et les guards.  
 
----
+# **QUESTION 4 – Écosystème Big Data**  
+### **MapReduce vs DAG (Directed Acyclic Graph)**  
 
-### **11. Différence entre `flatMap` et `map` ?**  
-**Réponse :** `flatMap utilise une fonction qui retourne une collection, tandis que map utilise une fonction qui retourne un seul élément.`  
+📌 **MapReduce**  
+- Exécute les tâches de manière **séquentielle** (map → shuffle → reduce).  
+- Stocke les données intermédiaires sur disque, ce qui ralentit le traitement.  
+- **Exemple** : **Hadoop MapReduce** pour du traitement batch.  
 
-**Explication :**  
-- `map(f)` applique `f` à chaque élément et retourne une nouvelle collection.  
-- `flatMap(f)` **aplatit** les résultats si `f` retourne une collection.  
+📌 **DAG (Graphe Acyclique Dirigé)**  
+- Définit un pipeline optimisé où **les tâches peuvent s’exécuter en parallèle**.  
+- Les données intermédiaires sont **traitées en mémoire** (plus rapide).  
+- **Exemple** : **Apache Spark**, qui optimise l’ordre d’exécution des tâches.  
 
----
+| **Critère** | **MapReduce** | **DAG (Spark, Flink)** |
+|------------|--------------|----------------|
+| **Latence** | Élevée (stockage disque) | Faible (in-memory) |
+| **Flexibilité** | Rigide | Adaptable |
+| **Efficacité** | Bonne sur gros fichiers | Excellente sur flux rapides |
 
-### **12. Pourquoi utiliser `Option` en Scala ?**  
-**Réponse :** `Elle permet une gestion plus sûre des nullités, en forçant l'utilisateur à vérifier explicitement la présence d'une valeur avant de l'utiliser.`  
+✅ **Conclusion** : DAG est plus rapide et efficace pour des **analyses interactives** et du **streaming**. MapReduce reste pertinent pour des **traitements batch massifs** sur disque.  
 
-**Explication :**  
-- `Option` remplace `null` et force le développeur à gérer proprement les valeurs absentes pour éviter les erreurs de type `NullPointerException`.  
 
----
 
-### **13. Quel est le rôle du mot-clé `implicit` en Scala ?**  
-**Réponse :** `Il indique qu'une variable ou fonction peut être passée automatiquement comme paramètre à une fonction.`  
+# **QUESTION 5 – Systèmes de Stockage Distribués**  
+### **Caractéristiques d’un système de fichiers distribué fiable**  
 
-**Explication :**  
-- `implicit` permet d’éviter d’écrire explicitement certains paramètres en les passant automatiquement lorsqu’ils sont requis.  
+1. **Réplication des données** : Chaque fichier est copié sur plusieurs nœuds.  
+2. **Tolérance aux pannes** : Fonctionne malgré la perte de certains nœuds.  
+3. **Consistance des métadonnées** : Empêche les incohérences.  
+4. **Évolutivité** : Ajout dynamique de serveurs sans perturber le système.  
 
----
+### **Impact de la réplication et du partitionnement**  
 
-### **14. Qu'est-ce que `lazy val` en Scala ?**  
-**Réponse :** `Une valeur qui est calculée et assignée lors de sa première utilisation.`  
+📌 **Réplication**  
+- Sauvegarde plusieurs copies des données pour éviter la perte.  
+- Exemples : HDFS stocke chaque bloc **en 3 copies**.  
 
-**Explication :**  
-- Une variable `lazy val` ne sera évaluée que lorsque son premier accès aura lieu, ce qui améliore les performances si elle n'est jamais utilisée.  
+📌 **Partitionnement**  
+- Divise les données entre plusieurs serveurs pour améliorer la rapidité.  
+- Exemples : Cassandra répartit les données avec une fonction de hash.  
 
----
+**Exemple concret : Google File System (GFS)**  
+- Gère des **fichiers massifs** via des "chunks" répliqués.  
+- Les nœuds "Master" et "Chunkserver" assurent **scalabilité et tolérance aux pannes**.  
 
-### **15. Comment créer un singleton en Scala ?**  
-**Réponse :** `En déclarant une classe avec le mot-clé object.`  
 
-**Explication :**  
-- Scala gère les **singletons** via `object`, ce qui évite le besoin d'une instanciation explicite.  
 
----
+# **Conclusion**  
 
-### **Notation et conseils**  
-
-| Score | Interprétation |
-|--------|---------------|
-| 30/30 | Maîtrise parfaite des concepts Scala. |
-| 24-28/30 | Très bon niveau, quelques détails à approfondir. |
-| 18-22/30 | Bon niveau, revoir certaines notions avancées. |
-| < 18/30 | Besoin de réviser les bases (collections, `Option`, `flatMap`). |
-
+- Cette correction détaillée vous fournit des explications pédagogiques, des comparaisons précises et des exemples concrets pour chaque question. 
+- Pour exceller, il est essentiel de structurer vos réponses avec **des définitions claires, des exemples illustratifs et des tableaux comparatifs**.  
