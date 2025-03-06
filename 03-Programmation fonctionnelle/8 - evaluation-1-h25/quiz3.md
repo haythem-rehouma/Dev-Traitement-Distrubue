@@ -9,7 +9,8 @@
 
 ## **1. Contexte**  
 
-Vous disposez d’un fichier nommé **AMRB.csv** contenant l’historique des prix de l’action **American River Bankshares (AMRB)**.  
+Vous disposez d’un fichier nommé **AHPI.csv** contenant l’**Indice des prix de l'immobilier résidentiel (AHPI)**.
+
 Ce fichier comprend les colonnes suivantes :  
 
 - **Date** : Date de la transaction  
