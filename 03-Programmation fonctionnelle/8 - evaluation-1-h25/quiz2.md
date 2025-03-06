@@ -193,7 +193,7 @@ Une entreprise surveille **+100 millions de transactions blockchain** par jour.
 
 ---
 
-## **FIN DE L’EXAMEN**  
+## **FIN DE LA PARTIE2**  
 - **Toute réponse non argumentée sera considérée comme incorrecte.**  
 - **Un raisonnement structuré et précis est exigé.**  
 
