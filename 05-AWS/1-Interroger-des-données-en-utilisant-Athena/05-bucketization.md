@@ -183,7 +183,7 @@ WHERE year = 2022 AND month = 1 AND paytype = 'Cash';
 
 ---
 
-### 🔍 **En résumé :**
+###  **En résumé :**
 - **Partitionnement** permet de diviser physiquement les données par dossier sur S3.  
 - **Bucketing** permet de diviser ces partitions en sous-blocs logiques sur la base d'une colonne (par hash).
 
