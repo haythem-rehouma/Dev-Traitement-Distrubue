@@ -105,3 +105,85 @@ C'est exactement ce que font les ordinateurs avec les données : ils organisent 
 
 Le **bucketing** est une technique d'optimisation puissante pour les requêtes sur de grands volumes de données. En l’utilisant conjointement avec le **partitionnement**, tu peux améliorer considérablement les performances de tes requêtes et réduire les coûts associés aux services comme **Amazon Athena**.
 
+
+------------------
+# Annexe :
+------------------
+
+- Prenons le **dataset de trajets en taxi**, stocké dans **Amazon S3** au format **Parquet**. 
+- Chaque ligne du dataset contient des informations comme :
+
+| ride_id | year | month | day | paytype   | amount | passenger_count |
+|---------|------|-------|-----|-----------|--------|------------------|
+| 1       | 2022 | 1     | 5   | Cash      | 15.50   | 2                |
+| 2       | 2022 | 1     | 6   | Card      | 23.00   | 1                |
+| 3       | 2022 | 2     | 15  | Cash      | 12.75   | 3                |
+| 4       | 2022 | 2     | 20  | Card      | 45.00   | 2                |
+| 5       | 2023 | 1     | 3   | Card      | 18.50   | 1                |
+
+---
+
+## **Exemple de Partitionnement :**
+Nous allons **partitionner les données par `year` et `month`**.
+
+### Organisation sur S3 :
+```
+s3://taxi-data/year=2022/month=1/
+s3://taxi-data/year=2022/month=2/
+s3://taxi-data/year=2023/month=1/
+```
+Chaque dossier contient des fichiers Parquet contenant uniquement les trajets de l'année et du mois concernés.
+
+### Pourquoi c'est utile ?
+Si Mary souhaite interroger uniquement les données de **Janvier 2022**, Athena peut directement cibler :  
+```
+s3://taxi-data/year=2022/month=1/
+```
+Ainsi, cela réduit significativement le volume de données à scanner.
+
+---
+
+## **Exemple de Bucketing :**
+Maintenant, nous allons **appliquer la buckétisation sur la colonne `paytype`** au sein de chaque partition.
+
+### Configuration du Bucketing :
+Pour la **partition** `year=2022/month=1`, nous voulons **3 buckets** (ce nombre est défini par l'utilisateur) :
+
+```
+Bucket 1 (hash de `paytype` mod 3 = 0) : "Cash"
+Bucket 2 (hash de `paytype` mod 3 = 1) : "Card"
+Bucket 3 (hash de `paytype` mod 3 = 2) : (Autres types de paiement, si présents)
+```
+
+### Organisation sur S3 :
+```
+s3://taxi-data/year=2022/month=1/bucket_1/
+s3://taxi-data/year=2022/month=1/bucket_2/
+s3://taxi-data/year=2022/month=1/bucket_3/
+```
+Les trajets payés en **cash** sont stockés dans un bucket, ceux payés par **carte** dans un autre, etc.
+
+---
+
+## **Interrogation Athena :**
+Disons que Mary souhaite obtenir tous les trajets payés en `Cash` pour **Janvier 2022**.
+
+### Requête SQL :
+```sql
+SELECT * 
+FROM taxi_data
+WHERE year = 2022 AND month = 1 AND paytype = 'Cash';
+```
+---
+
+## **Ce qui se passe en interne :**
+1. **Partitionnement :** Athena identifie rapidement le dossier concerné : `s3://taxi-data/year=2022/month=1/`.
+2. **Buckétisation :** Athena sait que les données `paytype = 'Cash'` sont probablement dans un **bucket spécifique** (`bucket_1`).
+3. **Optimisation :** Athena ne scanne que les fichiers nécessaires. Cela réduit les coûts d'analyse et améliore les performances.
+
+---
+
+### 🔍 **En résumé :**
+- **Partitionnement** permet de diviser physiquement les données par dossier sur S3.  
+- **Bucketing** permet de diviser ces partitions en sous-blocs logiques sur la base d'une colonne (par hash).
+
