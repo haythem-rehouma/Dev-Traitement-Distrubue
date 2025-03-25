@@ -769,3 +769,330 @@ Ce laboratoire a permis de démontrer qu’Amazon Athena est un outil puissant p
 4. **Configurer les politiques IAM avec soin pour garantir un accès sécurisé.**  
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# **Annexes : Scripts et Configurations Complètes**  
+
+
+
+#### **Annexe 1 : Script SQL pour Création de la Base de Données et des Tables**  
+
+```sql
+-- Création de la base de données taxidata
+CREATE DATABASE taxidata;
+
+-- Création de la table principale yellow
+CREATE EXTERNAL TABLE IF NOT EXISTS taxidata.yellow (
+    vendor STRING,
+    pickup TIMESTAMP,
+    dropoff TIMESTAMP,
+    count INT,
+    distance DOUBLE,
+    ratecode STRING,
+    storeflag STRING,
+    pulocid STRING,
+    dolocid STRING,
+    paytype STRING,
+    fare DECIMAL(10,2),
+    extra DECIMAL(10,2),
+    mta_tax DECIMAL(10,2),
+    tip DECIMAL(10,2),
+    tolls DECIMAL(10,2),
+    surcharge DECIMAL(10,2),
+    total DECIMAL(10,2)
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+WITH SERDEPROPERTIES (
+    'serialization.format' = ',',
+    'field.delim' = ','
+) LOCATION 's3://aws-tc-largeobjects/CUR-TF-200-ACDSCI-1/Lab2/yellow/'
+TBLPROPERTIES ('has_encrypted_data'='false');
+```
+
+---
+
+#### **Annexe 2 : Script SQL pour Optimisation par Bucketizing**  
+
+```sql
+-- Création de la table jan pour stocker les données de janvier 2017
+CREATE EXTERNAL TABLE IF NOT EXISTS taxidata.jan (
+    vendor STRING,
+    pickup TIMESTAMP,
+    dropoff TIMESTAMP,
+    count INT,
+    distance DOUBLE,
+    ratecode STRING,
+    storeflag STRING,
+    pulocid STRING,
+    dolocid STRING,
+    paytype STRING,
+    fare DECIMAL(10,2),
+    extra DECIMAL(10,2),
+    mta_tax DECIMAL(10,2),
+    tip DECIMAL(10,2),
+    tolls DECIMAL(10,2),
+    surcharge DECIMAL(10,2),
+    total DECIMAL(10,2)
+)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+WITH SERDEPROPERTIES (
+    'serialization.format' = ',',
+    'field.delim' = ','
+) LOCATION 's3://aws-tc-largeobjects/CUR-TF-200-ACDSCI-1/Lab2/January2017/'
+TBLPROPERTIES ('has_encrypted_data'='false');
+```
+
+---
+
+#### **Annexe 3 : Script SQL pour Optimisation par Partitionnement (Format Parquet)**  
+
+```sql
+-- Création de la table partitionnée par paytype (Parquet)
+CREATE TABLE taxidata.creditcard
+WITH (
+    format = 'PARQUET',
+    external_location = 's3://aws-tc-largeobjects/CUR-TF-200-ACDSCI-1/Lab2/creditcard/',
+    partitioned_by = ARRAY['paytype']
+) AS
+SELECT * FROM taxidata.yellow
+WHERE paytype = '1';
+
+-- Réparation de la table pour enregistrer les partitions
+MSCK REPAIR TABLE taxidata.creditcard;
+```
+
+---
+
+#### **Annexe 4 : Scripts SQL pour Création de Vues Athena**  
+
+```sql
+-- Vue pour trajets payés par carte de crédit
+CREATE VIEW taxidata.cctrips AS
+SELECT paytype, SUM(fare) AS total_revenue
+FROM taxidata.creditcard
+GROUP BY paytype;
+
+-- Vue pour trajets payés en espèces
+CREATE VIEW taxidata.cashtrips AS
+SELECT paytype, SUM(fare) AS total_revenue
+FROM taxidata.yellow
+WHERE paytype = '2'
+GROUP BY paytype;
+
+-- Vue combinée pour comparaison des revenus
+CREATE VIEW taxidata.revenue_comparison AS
+SELECT cctrips.total_revenue AS credit_revenue, cashtrips.total_revenue AS cash_revenue
+FROM taxidata.cctrips, taxidata.cashtrips;
+```
+
+---
+
+#### **Annexe 5 : Script CloudFormation pour Création de Requêtes Nommées (YAML)**  
+
+```yaml
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  AthenaNamedQuery:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: "taxidata"
+      Name: "RevenueByCreditCard"
+      QueryString: >
+        SELECT paytype, SUM(total) AS revenue
+        FROM taxidata.creditcard
+        GROUP BY paytype;
+Outputs:
+  QueryID:
+    Value: !Ref AthenaNamedQuery
+```
+
+---
+
+#### **Annexe 6 : Politique IAM pour Accès Contrôlé à Athena**  
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "athena:StartQueryExecution",
+        "athena:GetQueryResults"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::aws-tc-largeobjects/*"
+    }
+  ]
+}
+```
+
+---
+
+#### **Annexe 7 : Commandes CLI pour Création de Rôles IAM**  
+
+1. **Création du rôle IAM :**  
+```bash
+aws iam create-role --role-name AthenaQueryRole --assume-role-policy-document file://trust-policy.json
+```
+
+2. **Attachement de la politique au rôle :**  
+```bash
+aws iam attach-role-policy --role-name AthenaQueryRole --policy-arn arn:aws:iam::aws:policy/AthenaQueryAccess
+```
+
+---
+
+#### **Annexe 8 : Commandes CLI pour Validation des Requêtes Nommées**  
+
+1. **Lister les requêtes nommées :**  
+```bash
+aws athena list-named-queries
+```
+
+2. **Exécution d'une requête nommée :**  
+```bash
+aws athena start-query-execution --query-string "SELECT * FROM taxidata.creditcard LIMIT 10;" --work-group primary
+```
+
+
+
+
+
+### **Annexe 9 : Déploiement Complet d'une Requête Nommée avec AWS CloudFormation**
+
+---
+
+#### **1. Création du modèle CloudFormation (`athena-query.yml`)**
+
+```yaml
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  AthenaNamedQuery:
+    Type: AWS::Athena::NamedQuery
+    Properties:
+      Database: "taxidata"
+      Name: "RevenueByCreditCard"
+      Description: "Requête Athena pour calculer les revenus générés par les paiements par carte de crédit."
+      QueryString: >
+        SELECT paytype, SUM(total) AS revenue
+        FROM taxidata.creditcard
+        GROUP BY paytype;
+        
+Outputs:
+  NamedQueryID:
+    Description: "ID de la requête nommée Athena créée par ce modèle CloudFormation."
+    Value: !Ref AthenaNamedQuery
+```
+
+---
+
+#### **2. Validation du modèle CloudFormation (étape cruciale)**
+
+Avant de déployer un modèle CloudFormation, il est essentiel de le valider pour vérifier qu'il est syntaxiquement correct. Pour cela, on utilise la commande suivante :  
+
+```bash
+aws cloudformation validate-template --template-body file://athena-query.yml
+```
+
+---
+
+#### **Résultat attendu :**  
+```json
+{
+    "Parameters": []
+}
+```
+Une réponse vide comme ci-dessus indique que le modèle est valide. Toute erreur dans le modèle sera explicitement mentionnée par la commande.
+
+---
+
+#### **3. Déploiement du modèle CloudFormation (Création de la pile)**
+
+Une fois validé, nous déployons la pile en exécutant cette commande :  
+
+```bash
+aws cloudformation create-stack --stack-name AthenaQueryStack --template-body file://athena-query.yml
+```
+
+---
+
+#### **4. Vérification du déploiement (Lister les piles déployées)**
+
+Pour vérifier que la pile a bien été créée :  
+```bash
+aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE
+```
+
+---
+
+#### **5. Vérification des Requêtes Nommées (Lister les requêtes Athena)**
+
+Pour s'assurer que la requête nommée a bien été créée par la pile :  
+```bash
+aws athena list-named-queries
+```
+
+---
+
+#### **6. Récupération de l'ID de la Requête Nommée (Requête Nomée Détaillée)**
+
+Après avoir copié l'ID obtenu lors de la commande précédente, nous exécutons :  
+
+```bash
+aws athena get-named-query --named-query-id <ID_REQUÊTE_NOMMÉE>
+```
+
+---
+
+#### **7. Exécution de la Requête Nommée (Test Fonctionnel)**
+
+Pour vérifier que la requête nommée fonctionne correctement :  
+
+```bash
+aws athena start-query-execution --query-string "SELECT * FROM taxidata.creditcard LIMIT 10;" --work-group primary
+```
+
+---
+
+#### **8. Suppression de la pile CloudFormation (Nettoyage)**
+
+Si la pile n’est plus nécessaire, elle peut être supprimée pour éviter des coûts inutiles :  
+
+```bash
+aws cloudformation delete-stack --stack-name AthenaQueryStack
+```
+
+---
+
+### **Observation :**  
+L'intégration de CloudFormation pour la création de requêtes nommées permet une automatisation puissante des requêtes Athena. Cette méthode assure également une cohérence totale lorsqu’on souhaite déployer des requêtes similaires sur plusieurs comptes AWS.
+
+
+
+
+
+
+
+
+
+
+
+
+
