@@ -45,3 +45,47 @@ Le schéma illustre comment différentes composantes AWS interagissent pour perm
 - **CloudFormation** est utilisé pour automatiser la création d'un crawler prêt à l'emploi.  
 - **IAM Policies** sont essentielles pour restreindre ou accorder l'accès aux ressources AWS de manière sécurisée.  
 - **Les données explorées** sont disponibles pour interrogation via Athena après leur indexation par AWS Glue.
+
+
+
+# Annexe - **Pourquoi deux crawlers ?**  
+
+L'utilisation de **deux crawlers distincts** (`weather` et `cfn-weather-crawler`) dans ce lab a une logique précise, basée sur la nécessité de **séparer les processus d'exploration de données** et de **rendre les opérations reproductibles pour d'autres utilisateurs (comme Mary)**.  
+
+---
+
+## **Crawler 1 : `weather` (Crawler principal créé manuellement)**
+- **Créé manuellement par vous** dans la console AWS Glue.  
+- **But principal :**  
+  - Découvrir le schéma des données stockées dans le bucket S3 public contenant le dataset **GHCN-D**.  
+  - **Indexer les métadonnées** dans un catalogue de données nommé `weatherdata` dans AWS Glue Data Catalog.  
+- **Rôle IAM utilisé :** `gluelab` (Vous devez le configurer manuellement).  
+- **Utilisation directe :** Vous l'utilisez pour faire une découverte initiale des données.  
+
+---
+
+## **Crawler 2 : `cfn-weather-crawler` (Crawler créé via CloudFormation)**
+- **Créé automatiquement via un modèle AWS CloudFormation** exécuté depuis AWS Cloud9.  
+- **But principal :**  
+  - **Standardiser et automatiser la création du crawler**.  
+  - Permettre à d'autres utilisateurs, comme **Mary**, d'utiliser ce crawler facilement.  
+  - Faciliter la réutilisation du modèle pour d'autres projets sans avoir à recréer un crawler manuellement chaque fois.  
+- **Rôle IAM utilisé :** `gluelab` (Assigne automatiquement les permissions nécessaires via CloudFormation).  
+- **Utilisation principale :** Rendre le processus **reproductible, facile à déployer, et sécurisé** pour d'autres utilisateurs qui ont des permissions spécifiques.  
+
+---
+
+###  **Pourquoi avoir deux crawlers ?**
+1. **Séparation des responsabilités :**  
+   - Le premier crawler (`weather`) est utilisé pour votre découverte initiale.  
+   - Le deuxième (`cfn-weather-crawler`) est conçu pour permettre à d'autres utilisateurs comme Mary d'explorer les données de manière autonome.  
+
+2. **Reproductibilité et Automatisation :**  
+   - Avec un modèle CloudFormation, d'autres équipes peuvent facilement déployer leurs propres crawlers.  
+   - Cela évite d'avoir à configurer manuellement les permissions, les chemins de données, et les configurations chaque fois.  
+
+3. **Sécurité et Contrôle d'accès :**  
+   - Le modèle CloudFormation (`cfn-weather-crawler`) respecte les politiques IAM (`Policy-For-Data-Scientists`) permettant un accès restreint aux ressources AWS.  
+   - Chaque utilisateur peut créer son propre crawler en utilisant un modèle prédéfini sans avoir accès aux configurations internes de celui-ci.  
+
+
