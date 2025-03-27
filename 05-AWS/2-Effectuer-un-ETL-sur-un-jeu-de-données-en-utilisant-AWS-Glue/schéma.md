@@ -1,6 +1,7 @@
 ### **Explication de l'ordre du schéma : Processus d'ETL avec AWS Glue et Athena**
 
 
+![image](https://github.com/user-attachments/assets/2d32f9ee-c9d8-469e-af8c-914644c74d76)
 
 Le schéma illustre comment différentes composantes AWS interagissent pour permettre l'importation, la transformation et l'interrogation de données météorologiques (**GHCN-D Dataset**) via **AWS Glue, Athena, CloudFormation, et IAM**. Voici l'ordre chronologique des actions :
 
