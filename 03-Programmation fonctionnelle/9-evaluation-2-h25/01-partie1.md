@@ -2,7 +2,7 @@
 # Partie #1
 
 ## EXERCICE #1
-Décrivez les différences fondamentales entre les transformations et les actions dans le contexte de Spark. Utilisez le fichier PDF fourni pour illustrer votre réponse avec des exemples concrets.
+Décrivez les différences fondamentales entre les transformations et les actions dans le contexte de Spark. 
 
 ## EXERCICE #2
 Comparez les opérations `flatMap` et `map` dans Spark en mettant en avant leurs usages respectifs dans le traitement des données. Quelles sont les principales différences en termes de résultat produit ?
