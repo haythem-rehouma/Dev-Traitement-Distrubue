@@ -1,5 +1,10 @@
 # **Description complète du Pipeline 3**
 
+
+
+![pipeline3](https://github.com/user-attachments/assets/f82ef59e-a43a-4e2f-849a-f2c0eda01016)
+
+
 - Le pipeline 3 illustre une architecture typique de traitement de données structurée en plusieurs phases, allant de l’ingestion brute à la visualisation finale. 
 - Il est conçu pour gérer des volumes importants de données issues de différentes bases de données, et appliquer une transformation rigoureuse avant l'analyse.
 
