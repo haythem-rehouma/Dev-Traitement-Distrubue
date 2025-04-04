@@ -1,5 +1,8 @@
 # **Pipeline 2 – Architecture et Étapes Clés**
 
+![image](https://github.com/user-attachments/assets/1d390e9e-2c18-463f-9a23-709205c89a30)
+
+
 Ce pipeline suit un chemin plus direct, composé de quatre étapes principales : **Data sources**, **Streaming**, **Data warehouse**, et **Analytics**. Il est optimisé pour le traitement continu des données.
 
 # **1. Data Sources – Sources de données**
