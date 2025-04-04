@@ -1,5 +1,16 @@
 # **Analyse complète des trois pipelines de traitement de données AWS**
 
+*Comparez les 3 pipelines* 
+
+### Pipeline 1
+![pipeline1](https://github.com/user-attachments/assets/84ed9186-a77d-40a4-b97f-13e939596ad4)
+
+### Pipeline 2
+![pipeline2](https://github.com/user-attachments/assets/6aeb023f-50a7-44c3-b028-05b98817ab02)
+
+### Pipeline 3
+![pipeline3](https://github.com/user-attachments/assets/f82ef59e-a43a-4e2f-849a-f2c0eda01016)
+
 ## **I. Description détaillée de chaque pipeline**
 
 
