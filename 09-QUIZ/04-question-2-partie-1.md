@@ -1,6 +1,10 @@
 # **Pipeline 1 – Architecture et Explication**
 
+
+![image](https://github.com/user-attachments/assets/559c6e02-bc3d-477b-aa70-ef463b4ddcf2)
+
 Ce pipeline de données suit un parcours structuré en sept étapes majeures : Acquire, Stage, Process, Store, Analyze, Serve, et Consume. Il repose sur une architecture serverless et entièrement managée via les services AWS.
+
 
 
 
