@@ -2,7 +2,7 @@
 
 *Comparez les 3 pipelines* 
 
-### Pipeline 1
+###  Pipeline 1
 ![pipeline1](https://github.com/user-attachments/assets/84ed9186-a77d-40a4-b97f-13e939596ad4)
 
 ### Pipeline 2
