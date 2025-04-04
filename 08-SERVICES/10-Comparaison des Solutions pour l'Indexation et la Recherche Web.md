@@ -2,7 +2,7 @@
 
 Comparaison des Solutions pour l'Indexation et la Recherche Web
 
-## Question à laquelle le tutoriel répond :
+# Question à laquelle le tutoriel répond :
 
 *Quelles sont les alternatives à Amazon OpenSearch Service pour l'indexation et la recherche sur un site web, et quelles sont leurs limites ?*
 
