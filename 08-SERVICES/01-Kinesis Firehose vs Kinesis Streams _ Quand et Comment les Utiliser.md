@@ -1,16 +1,16 @@
-# 📊 Comparaison entre Amazon Kinesis Firehose et Kinesis Streams (Firestream) : Guide d'Utilisation et Cas Pratiques
+# Comparaison entre Amazon Kinesis Firehose et Kinesis Streams (Firestream) : Guide d'Utilisation et Cas Pratiques
+
+
+# 1 - Question à laquelle le document répond 
+
+
+*❓ Quelle est la différence entre Kinesis Firehose et Kinesis Streams (Firestream) dans des cas d'utilisation spécifiques ?*
 
 ----------------------
-# 💡 Question à laquelle le document répond :
+# 2 - Réponses :
 ----------------------
 
-**❓ Quelle est la différence entre Kinesis Firehose et Kinesis Streams (Firestream) dans des cas d'utilisation spécifiques ?**
-
-----------------------
-# 📝 Réponse :
-----------------------
-
-# 📊 Tableau 1 : Comparaison générale des deux services
+# 2.1. Tableau 1 : Comparaison générale des deux services
 
 | **Cas d'Utilisation**                           | **Kinesis Firehose**                                       | **Kinesis Streams (Firestream)**                             |
 |--------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------|
@@ -23,9 +23,9 @@
 | **Faible latence**                               | - Supporte des flux quasi temps réel, mais pas optimal pour les cas où une latence minimale est critique. | - Conçu pour une faible latence avec un traitement quasi instantané des données. |
 | **Cas d'utilisation avec besoin de persistance** | - Envoie les données vers des destinations de stockage persistantes comme S3 ou Redshift.<br>- Idéal pour des pipelines où les données doivent être persistées régulièrement. | - Garde les données dans les shards pour une durée limitée (24h à 7 jours).<br>- Idéal pour relire ou rejouer des flux de données. |
 
----
 
-# 🔎 Tableau 2 : Quand utiliser Firehose ou Streams selon le scénario
+
+# 2.2. Tableau 2 : Quand utiliser Firehose ou Streams selon le scénario
 
 | **Cas d'Utilisation / Scénario**                         | **Kinesis Firehose**                                                                                           | **Kinesis Streams (Firestream)**                                                                                  |
 |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
@@ -36,9 +36,9 @@
 | **Traitement de flux vidéo en direct**                   | - **Scénario** : Archivage de flux vidéo depuis des caméras de sécurité pour analyse future.<br>- **Pourquoi Firehose ?** : Automatisation de l'archivage des vidéos. | - **Scénario** : Analyse des flux vidéo en temps réel pour détecter des objets.<br>- **Pourquoi Streams ?** : Latence ultra-faible pour une analyse en direct. |
 | **Cas nécessitant de multiples consommateurs**             | - **Scénario** : Traitement des données pour une seule destination (ex. : S3).<br>- **Pourquoi Firehose ?** : Optimisé pour envoyer les données vers une destination unique. | - **Scénario** : Plusieurs applications doivent lire et consommer les mêmes données.<br>- **Pourquoi Streams ?** : Idéal pour traiter les données avec plusieurs consommateurs en parallèle. |
 
----
 
-# 📝 Tableau 3 : Choix final en fonction des besoins
+
+# 2.3. Tableau 3 : Choix final en fonction des besoins
 
 | **Scénario**                                            | **Kinesis Firehose**                               | **Kinesis Streams (Firestream)**                             |
 |---------------------------------------------------------|----------------------------------------------------|-------------------------------------------------------------|
@@ -47,9 +47,8 @@
 | **Faible latence pour des décisions en temps réel**      | - N’utilise pas Firehose si tu as besoin d’une réponse immédiate. | - Utilise Streams pour des décisions immédiates en temps réel avec une faible latence. |
 | **Relecture ou simulation des flux de données**          | - N’utilise pas Firehose pour rejouer des données déjà envoyées. | - Utilise Streams pour relire ou rejouer des flux de données sur 24h à 7 jours. |
 
----
 
-# 📌 Annexe 1 - C’est quoi un shard ?
+# 3 - Annexe 1 - C’est quoi un shard ?
 
 Un **shard** est une unité de capacité dans **Kinesis Streams**. Il permet de partitionner les flux de données pour mieux les gérer et les distribuer.
 
@@ -58,9 +57,9 @@ Un **shard** est une unité de capacité dans **Kinesis Streams**. Il permet de 
 
 Les **shards** permettent de **scaler** les flux de données en fonction des besoins, en ajoutant ou supprimant des shards selon le volume à traiter.
 
----
 
-# 📌 Annexe 2 - Contrôle granulaire
+
+# 4 - Annexe 2 - Contrôle granulaire
 
 Le **contrôle granulaire** dans **Kinesis Streams** signifie que tu peux gérer chaque aspect du flux de données avec une précision accrue, contrairement à **Firehose**, qui est plus automatisé.
 
@@ -70,6 +69,6 @@ Exemple :
 
 En résumé, choisis **Firehose** pour une solution simple et entièrement gérée, ou **Streams** pour un contrôle détaillé et granulaire sur la gestion des flux de données.
 
----
+
 
 😊 **Astuce** : Utilise Firehose pour des pipelines de stockage simples et Streams pour des cas d’utilisation en temps réel avec plusieurs intégrations et un contrôle précis !
