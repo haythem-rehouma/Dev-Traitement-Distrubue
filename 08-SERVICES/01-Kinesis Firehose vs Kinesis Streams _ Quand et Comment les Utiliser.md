@@ -6,11 +6,9 @@
 
 *❓ Quelle est la différence entre Kinesis Firehose et Kinesis Streams (Firestream) dans des cas d'utilisation spécifiques ?*
 
-----------------------
-# 2 - Réponses :
-----------------------
 
-# 2.1. Tableau 1 : Comparaison générale des deux services
+
+# 2 - Tableau 1 : Comparaison générale des deux services
 
 | **Cas d'Utilisation**                           | **Kinesis Firehose**                                       | **Kinesis Streams (Firestream)**                             |
 |--------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------|
@@ -25,7 +23,7 @@
 
 
 
-# 2.2. Tableau 2 : Quand utiliser Firehose ou Streams selon le scénario
+# 3 - Tableau 2 : Quand utiliser Firehose ou Streams selon le scénario
 
 | **Cas d'Utilisation / Scénario**                         | **Kinesis Firehose**                                                                                           | **Kinesis Streams (Firestream)**                                                                                  |
 |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
@@ -38,7 +36,7 @@
 
 
 
-# 2.3. Tableau 3 : Choix final en fonction des besoins
+# 4 - Tableau 3 : Choix final en fonction des besoins
 
 | **Scénario**                                            | **Kinesis Firehose**                               | **Kinesis Streams (Firestream)**                             |
 |---------------------------------------------------------|----------------------------------------------------|-------------------------------------------------------------|
@@ -48,7 +46,7 @@
 | **Relecture ou simulation des flux de données**          | - N’utilise pas Firehose pour rejouer des données déjà envoyées. | - Utilise Streams pour relire ou rejouer des flux de données sur 24h à 7 jours. |
 
 
-# 3 - Annexe 1 - C’est quoi un shard ?
+# 5 - Annexe 1 - C’est quoi un shard ?
 
 Un **shard** est une unité de capacité dans **Kinesis Streams**. Il permet de partitionner les flux de données pour mieux les gérer et les distribuer.
 
@@ -59,7 +57,7 @@ Les **shards** permettent de **scaler** les flux de données en fonction des bes
 
 
 
-# 4 - Annexe 2 - Contrôle granulaire
+# 6 - Annexe 2 - Contrôle granulaire
 
 Le **contrôle granulaire** dans **Kinesis Streams** signifie que tu peux gérer chaque aspect du flux de données avec une précision accrue, contrairement à **Firehose**, qui est plus automatisé.
 
