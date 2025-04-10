@@ -1,4 +1,4 @@
-###  Objectif : pourquoi utiliser **les deux** ?
+###  Streams et Firehose : pourquoi utiliser **les deux** ?
 👉 Parce qu’ils **ne font pas la même chose**.
 
 Tu peux les utiliser **ensemble OU séparément**, **selon le niveau de contrôle que tu veux** sur le flux de données.
