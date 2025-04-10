@@ -1,4 +1,4 @@
-# **Introduction pédagogique : Services AWS utilisés dans ce laboratoire**
+# *Introduction - Services AWS utilisés dans ce laboratoire*
 
 Dans ce laboratoire, nous allons explorer une architecture complète permettant de **collecter, transformer, stocker et visualiser des données en streaming** grâce à plusieurs services clés d’AWS.
 
