@@ -9,8 +9,8 @@ Tu peux les utiliser **ensemble OU séparément**, **selon le niveau de contrôl
 Imagine un **restaurant** avec :
 
 - un **convoyeur automatique** qui transporte les commandes (💨 rapide)  
-- un **chef en cuisine** qui prépare les plats (🔥 enrichissement / transformation)  
-- un **serveur** qui livre les plats dans la salle (📦 destination finale)
+- un **chef en cuisine** qui prépare les plats (enrichissement / transformation)  
+- un **serveur** qui livre les plats dans la salle (destination finale)
 
 <br/>
 
