@@ -24,7 +24,7 @@ L’architecture est conçue pour **analyser les données en streaming** et comp
 <br/>
 
 
-# **Tâche 1 : Vérification de l’instance EC2 et de sa configuration de sécurité**
+# 01 - **Tâche 1 : Vérification de l’instance EC2 et de sa configuration de sécurité**
 
 ###  Étapes :
 
@@ -46,7 +46,7 @@ L’architecture est conçue pour **analyser les données en streaming** et comp
 <br/>
 
 
-# **Tâche 2 : Vérification du flux de livraison Kinesis Data Firehose**
+# 02 - **Tâche 2 : Vérification du flux de livraison Kinesis Data Firehose**
 
 ### Étapes :
 
@@ -70,7 +70,7 @@ L’architecture est conçue pour **analyser les données en streaming** et comp
 <br/>
 
 
-## **Tâche 3 : Vérification du cluster OpenSearch Service**
+## 03 - **Tâche 3 : Vérification du cluster OpenSearch Service**
 
 ###  Étapes :
 
