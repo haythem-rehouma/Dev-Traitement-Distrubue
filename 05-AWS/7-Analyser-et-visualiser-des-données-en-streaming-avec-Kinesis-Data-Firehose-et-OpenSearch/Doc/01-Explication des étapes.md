@@ -1,4 +1,4 @@
-# **Explication des étapes du schéma (Numérotées 1 à 9)**
+# *Explication des étapes du schéma (Numérotées 1 à 9)*
 
 ![image](https://github.com/user-attachments/assets/455d28a5-dd72-4a4a-b029-4524eca478ef)
 
