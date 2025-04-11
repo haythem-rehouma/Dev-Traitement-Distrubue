@@ -206,6 +206,7 @@ Cet ordre garantit que les données sont traitées, organisées, comprises, puis
 
 
 <br/>
+
 **9. Que signifie l'acronyme ELT ?**
 
 - [ ] Extract, label, and transform  
