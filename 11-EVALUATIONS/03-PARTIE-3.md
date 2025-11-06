@@ -1,7 +1,9 @@
 # Partie 3
 
 **Fichier donné :** `spotify_albums.csv`, `spotify_artists.csv`, `spotify_tracks.csv`
+
 > Liens : https://drive.google.com/drive/folders/1ti1pHjj285g-jB763vlC6949Nn0o-wW9?usp=sharing
+
 > **Remise :** entre une page et deux pages (PDF ou .txt)
 
 # Q1 — Problèmes de données
