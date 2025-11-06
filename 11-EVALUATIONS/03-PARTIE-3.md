@@ -12,7 +12,7 @@ Citez **les problèmes** trouvés dans les CSV.
 
 Écrivez **un exemple de** requête Cypher qui impose l’unicité de l’ID d’album.
 
-# Q3 — Création minimale
+# Q3 — Création d'une requête
 
 Écrivez **une requête MERGE** qui crée :
 
